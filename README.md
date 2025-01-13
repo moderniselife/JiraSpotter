@@ -140,7 +140,7 @@ Note: The `config.js` file is gitignored to prevent accidentally committing cred
 
 - **Jira tickets not appearing**: Ensure `jira-taskid` attributes or comments are correctly added and match existing Jira ticket IDs.
 - **Authentication issues**: Double-check your credentials and try re-authenticating.
-- **Other problems**: Contact us at [Your Email Address].
+- **Other problems**: Contact us at joe@jjs.digital.
 
 ---
 
@@ -157,7 +157,7 @@ We welcome contributions to improve Jira Spotter! To contribute:
 
 ## 📧 Support
 
-For any questions, issues, or feedback, reach out at [Your Email Address].
+For any questions, issues, or feedback, reach out at joe@jjs.digital.
 
 ---
 
