@@ -102,20 +102,32 @@ For more details, refer to our [Privacy Policy](#).
 To set up the development environment:
 
 1. Clone the repository
-2. Copy `.env.example` to `.env`:
+
+2. Create a Jira OAuth App:
+   - Go to https://developer.atlassian.com/console/myapps/
+   - Create a new OAuth 2.0 app
+   - After creating the app, launch JiraSpotter in Chrome
+   - Check the browser console for the Redirect URI
+   - Add this Redirect URI to your Jira OAuth App settings
+   - Copy the Client ID and Client Secret
+
+3. Copy `.env.example` to `.env`:
    ```bash
    cp .env.example .env
    ```
-3. Add your Jira OAuth credentials to `.env`:
+
+4. Add your Jira OAuth credentials to `.env`:
    ```
    JIRA_CLIENT_ID=your_client_id_here
    JIRA_CLIENT_SECRET=your_client_secret_here
    ```
-4. Install dependencies:
+
+5. Install dependencies:
    ```bash
    npm install
    ```
-5. Build the configuration:
+
+6. Build the configuration:
    ```bash
    npm run build
    ```
