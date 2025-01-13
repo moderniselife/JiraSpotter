@@ -197,6 +197,10 @@ function enableElementSelection() {
     isSelectingElement = true;
     document.body.style.cursor = 'crosshair';
 
+    // Remove any existing style element
+    const existingStyle = document.getElementById('element-selector-style');
+    if (existingStyle) existingStyle.remove();
+
     // Add highlight effect on hover
     const style = document.createElement('style');
     style.id = 'element-selector-style';
@@ -204,9 +208,15 @@ function enableElementSelection() {
         .jira-spotter-hover {
             outline: 2px solid #0052CC !important;
             outline-offset: 1px !important;
+            pointer-events: auto !important;
+            cursor: crosshair !important;
         }
     `;
     document.head.appendChild(style);
+
+    // Reset any existing highlights
+    const highlighted = document.querySelector('.jira-spotter-hover');
+    if (highlighted) highlighted.classList.remove('jira-spotter-hover');
 }
 
 function disableElementSelection() {
@@ -223,21 +233,31 @@ function disableElementSelection() {
 // Handle element hover during selection mode
 document.addEventListener('mouseover', (e) => {
     if (!isSelectingElement) return;
-
+    
+    // Ignore elements in our shadow DOM
+    if (e.target.closest('#jira-spotter-container')) return;
+    
+    // Remove previous highlight
     const highlighted = document.querySelector('.jira-spotter-hover');
     if (highlighted) highlighted.classList.remove('jira-spotter-hover');
-
-    e.target.classList.add('jira-spotter-hover');
+    
+    // Add highlight to current target
+    const target = e.target;
+    target.classList.add('jira-spotter-hover');
+    
     e.stopPropagation();
-});
+}, true); // Use capture phase
 
 // Handle element selection
 document.addEventListener('click', (e) => {
     if (!isSelectingElement) return;
-
+    
+    // Ignore elements in our shadow DOM
+    if (e.target.closest('#jira-spotter-container')) return;
+    
     e.preventDefault();
     e.stopPropagation();
-
+    
     const element = e.target;
     const tagName = element.tagName.toLowerCase();
     const id = element.id;
