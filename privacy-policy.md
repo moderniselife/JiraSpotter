@@ -1,6 +1,6 @@
 # Privacy Policy for Jira Spotter
 
-**Effective Date**: [Insert Date]
+**Effective Date**: 13/01/2025
 
 Jira Spotter ("the Extension") is committed to protecting your privacy. This Privacy Policy outlines how we collect, use, and safeguard your information when you use the Extension.
 
@@ -48,5 +48,5 @@ We may update this Privacy Policy from time to time. Changes will be reflected i
 ## 8. Contact Us
 
 If you have any questions or concerns about this Privacy Policy, please contact us at:
-**Email**: [Your Email Address]
-**Website**: [Your Website URL]
+**Email**: joe@jjs.digital
+**Website**: https://jjs.digital
