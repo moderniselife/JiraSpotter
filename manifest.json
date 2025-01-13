@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Jira Spotter",
+  "version": "1.0",
+  "description": "Finds and manages Jira tickets referenced in code via deit-taskID",
+  "permissions": ["activeTab", "tabs", "scripting", "storage", "sidePanel", "identity", "tabCapture"],
+  "oauth2": {
+    "client_id": "${JIRA_CONFIG.CLIENT_ID}",
+    "scopes": ["read:jira-work", "write:jira-work", "read:jira-user", "read:jira-attachment", "offline_access"]
+  },
+  "host_permissions": ["*://*/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "action": {
+    "default_title": "Jira Spotter"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["html2canvas.min.js", "content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

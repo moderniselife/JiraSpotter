@@ -1,0 +1,17 @@
+# Sensitive configuration
+config.js
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.zip
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+.vscode

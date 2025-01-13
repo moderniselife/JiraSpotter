@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Jira Spotter</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="marked.min.js"></script>
+    <script src="config.js"></script>
+</head>
+
+<body id="JiraSpotter">
+    <div id="config-panel" class="panel">
+        <h2>Jira Configuration</h2>
+        <div class="auth-methods">
+            <button id="oauth-login" class="auth-button">
+                <img src="https://cdn.worldvectorlogo.com/logos/jira-1.svg" alt="Jira Logo" class="auth-icon">
+                Login with Jira
+            </button>
+            <div class="separator">
+                <span>or</span>
+            </div>
+            <form id="config-form">
+                <div class="form-group">
+                    <label for="jira-url">Jira URL:</label>
+                    <input type="url" id="jira-url" required placeholder="https://your-domain.atlassian.net">
+                </div>
+                <div class="form-group">
+                    <label for="jira-token">API Token:</label>
+                    <input type="password" id="jira-token" required placeholder="Your Jira API token">
+                    <a href="https://id.atlassian.com/manage/api-tokens" target="_blank" class="help-link">Get API
+                        Token</a>
+                </div>
+                <button type="submit">Save Configuration</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="tickets-panel" class="panel">
+        <div class="panel-header">
+            <div class="header-top">
+                <h2>Found Tickets</h2>
+                <button id="logout-button" class="logout-button">Logout</button>
+            </div>
+            <div class="header-bottom">
+                <div class="filter-container">
+                    <input type="text" id="ticket-filter" placeholder="Search tickets..." class="ticket-filter">
+                    <select id="status-filter" class="filter-select">
+                        <option value="all">All Statuses</option>
+                        <option value="to do">To Do</option>
+                        <option value="in progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                    <select id="sort-order" class="filter-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="tickets-list"></div>
+    </div>
+
+    <template id="ticket-template">
+        <div class="ticket">
+            <div class="ticket-header">
+                <div class="ticket-header-left">
+                    <h3 class="ticket-key"></h3>
+                    <button class="open-in-jira">Open in Jira</button>
+                </div>
+                <span class="ticket-status"></span>
+            </div>
+            <div class="ticket-summary"></div>
+            <div class="ticket-description"></div>
+            <div class="ticket-actions">
+                <select class="status-select">
+                    <option value="to do">To Do</option>
+                    <option value="in progress">In Progress</option>
+                    <option value="done">Done</option>
+                </select>
+                <div class="comment-section">
+                    <textarea class="comment-input" placeholder="Add a comment..."></textarea>
+                    <div class="comment-actions">
+                        <button class="select-element-btn">Select Element</button>
+                        <button class="add-comment-btn">Add Comment</button>
+                        <button class="attach-screenshot-btn">Attach Screenshot</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ticket-comments"></div>
+        </div>
+    </template>
+
+    <script src="sidepanel.js"></script>
+</body>
+
+</html>

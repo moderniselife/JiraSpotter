@@ -1,0 +1,11 @@
+{
+  "name": "jiraspotter",
+  "version": "1.0.0",
+  "description": "JiraSpotter Chrome Extension",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.3"
+  }
+}
