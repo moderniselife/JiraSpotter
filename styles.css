@@ -1,44 +1,53 @@
 /* General styles */
 #JiraSpotter {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   margin: 0;
   padding: 16px;
   background: #f4f5f7;
   color: #172b4d;
+  /* Auth methods styles */
+  /* Form styles */
+  /* Ticket styles */
+  /* Loading state */
+  /* Attachment styles */
+  /* Error and success states */
+  /* .jira-spotter-hover {
+    position: relative;
+    z-index: 10000;
+    outline: 3px solid rgba(0, 150, 255, 0.9);
+    background-color: rgba(0, 150, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
+    pointer-events: none;
+    transition: all 0.1s ease-in-out;
+    } */
 }
-
-.panel {
+#JiraSpotter .panel {
   background: white;
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
-.panel-header {
+#JiraSpotter .panel-header {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
 }
-
-.header-top {
+#JiraSpotter .header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
-.header-bottom {
+#JiraSpotter .header-bottom {
   width: 100%;
 }
-
-.filter-container {
+#JiraSpotter .filter-container {
   display: flex;
   gap: 10px;
   width: 100%;
 }
-
-.ticket-filter {
+#JiraSpotter .ticket-filter {
   flex: 2;
   padding: 8px;
   border: 1px solid #dfe1e6;
@@ -46,8 +55,7 @@
   font-size: 14px;
   background-color: white;
 }
-
-.filter-select {
+#JiraSpotter .filter-select {
   flex: 1;
   padding: 8px;
   border: 1px solid #dfe1e6;
@@ -56,23 +64,19 @@
   background-color: white;
   cursor: pointer;
 }
-
-.ticket-filter:focus,
-.filter-select:focus {
+#JiraSpotter .ticket-filter:focus,
+#JiraSpotter .filter-select:focus {
   outline: none;
   border-color: #0052cc;
   box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
 }
-
-.filter-select:hover {
+#JiraSpotter .filter-select:hover {
   border-color: #0052cc;
 }
-
-.panel-header h2 {
+#JiraSpotter .panel-header h2 {
   margin: 0;
 }
-
-.logout-button {
+#JiraSpotter .logout-button {
   background: #f4f5f7;
   color: #42526e;
   border: 1px solid #dfe1e6;
@@ -82,25 +86,20 @@
   font-size: 12px;
   transition: background-color 0.2s;
 }
-
-.logout-button:hover {
+#JiraSpotter .logout-button:hover {
   background: #ebecf0;
 }
-
-h2 {
+#JiraSpotter h2 {
   margin-top: 0;
   font-size: 18px;
   color: #172b4d;
 }
-
-/* Auth methods styles */
-.auth-methods {
+#JiraSpotter .auth-methods {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
-.auth-button {
+#JiraSpotter .auth-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,18 +115,15 @@ h2 {
   font-weight: 500;
   transition: background-color 0.2s;
 }
-
-.auth-button:hover {
+#JiraSpotter .auth-button:hover {
   background: #0747a6;
 }
-
-.auth-icon {
+#JiraSpotter .auth-icon {
   width: 20px;
   height: 20px;
   filter: brightness(0) invert(1);
 }
-
-.separator {
+#JiraSpotter .separator {
   display: flex;
   align-items: center;
   text-align: center;
@@ -135,53 +131,44 @@ h2 {
   font-size: 12px;
   margin: 8px 0;
 }
-
-.separator::before,
-.separator::after {
-  content: '';
+#JiraSpotter .separator::before,
+#JiraSpotter .separator::after {
+  content: "";
   flex: 1;
   border-bottom: 1px solid #dfe1e6;
 }
-
-.separator span {
+#JiraSpotter .separator span {
   padding: 0 10px;
 }
-
-.help-link {
+#JiraSpotter .help-link {
   display: block;
   font-size: 12px;
   color: #0052cc;
   text-decoration: none;
   margin-top: 4px;
 }
-
-.help-link:hover {
+#JiraSpotter .help-link:hover {
   text-decoration: underline;
 }
-
-/* Form styles */
-.form-group {
+#JiraSpotter .form-group {
   margin-bottom: 16px;
 }
-
-label {
+#JiraSpotter label {
   display: block;
   margin-bottom: 4px;
   font-weight: 500;
 }
-
-input[type='url'],
-input[type='password'],
-textarea,
-select {
+#JiraSpotter input[type=url],
+#JiraSpotter input[type=password],
+#JiraSpotter textarea,
+#JiraSpotter select {
   width: 100%;
   padding: 8px;
   border: 1px solid #dfe1e6;
   border-radius: 4px;
   font-size: 14px;
 }
-
-button {
+#JiraSpotter button {
   background: #0052cc;
   color: white;
   border: none;
@@ -191,40 +178,33 @@ button {
   font-size: 14px;
   font-weight: 500;
 }
-
-button:hover {
+#JiraSpotter button:hover {
   background: #0747a6;
 }
-
-/* Ticket styles */
-.ticket {
+#JiraSpotter .ticket {
   border: 1px solid #dfe1e6;
   border-radius: 4px;
   margin-bottom: 16px;
   padding: 16px;
   background: white;
 }
-
-.ticket-header {
+#JiraSpotter .ticket-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
-
-.ticket-header-left {
+#JiraSpotter .ticket-header-left {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
-.ticket-key {
+#JiraSpotter .ticket-key {
   margin: 0;
   font-size: 16px;
   color: #0052cc;
 }
-
-.open-in-jira {
+#JiraSpotter .open-in-jira {
   background: #0052cc;
   color: white;
   border: none;
@@ -234,80 +214,65 @@ button:hover {
   cursor: pointer;
   transition: background-color 0.2s;
 }
-
-.open-in-jira:hover {
+#JiraSpotter .open-in-jira:hover {
   background: #0747a6;
 }
-
-.ticket-status {
+#JiraSpotter .ticket-status {
   padding: 4px 8px;
   border-radius: 3px;
   font-size: 12px;
   font-weight: 500;
 }
-
-.ticket-status[data-status='to do'] {
+#JiraSpotter .ticket-status[data-status="to do"] {
   background: #dfe1e6;
   color: #172b4d;
 }
-
-.ticket-status[data-status='in progress'] {
+#JiraSpotter .ticket-status[data-status="in progress"] {
   background: #deebff;
   color: #0747a6;
 }
-
-.ticket-status[data-status='done'] {
+#JiraSpotter .ticket-status[data-status=done] {
   background: #e3fcef;
   color: #006644;
 }
-
-.ticket-summary {
+#JiraSpotter .ticket-summary {
   font-weight: 500;
   margin-bottom: 8px;
 }
-
-.ticket-description {
+#JiraSpotter .ticket-description {
   font-size: 14px;
   color: #5e6c84;
   margin-bottom: 16px;
   line-height: 1.5;
 }
-
-.ticket-actions {
+#JiraSpotter .ticket-actions {
   border-top: 1px solid #dfe1e6;
   padding-top: 16px;
   margin-top: 16px;
 }
-
-.status-select {
+#JiraSpotter .status-select {
   margin-bottom: 16px;
 }
-
-.comment-section {
+#JiraSpotter .comment-section {
   margin-top: 16px;
 }
-
-.comment-input {
+#JiraSpotter .comment-input {
   min-height: 80px;
   margin-bottom: 8px;
   resize: vertical;
 }
-
-.comment-actions {
+#JiraSpotter .comment-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
 }
-
-.select-element-btn {
+#JiraSpotter .select-element-btn {
   background: #0747a6;
 }
-
-.select-element-btn:hover {
+#JiraSpotter .select-element-btn:hover {
   background: #0052cc;
 }
-
-.tag-reference {
+#JiraSpotter .tag-reference {
   color: #0052cc;
   cursor: pointer;
   padding: 2px 4px;
@@ -316,72 +281,58 @@ button:hover {
   display: inline-block;
   margin: 0 2px;
 }
-
-.tag-reference:hover {
+#JiraSpotter .tag-reference:hover {
   background: #b3d4ff;
 }
-
-.ticket-comments {
+#JiraSpotter .ticket-comments {
   margin-top: 16px;
 }
-
-.comment {
+#JiraSpotter .comment {
   padding: 8px;
   background: #f4f5f7;
   border-radius: 4px;
   margin-bottom: 8px;
   font-size: 14px;
 }
-
-.comment-author {
+#JiraSpotter .comment-author {
   font-weight: 500;
   margin-bottom: 4px;
 }
-
-.comment-date {
+#JiraSpotter .comment-date {
   color: #5e6c84;
   font-size: 12px;
 }
-
-/* Loading state */
-.loading {
+#JiraSpotter .loading {
   text-align: center;
   padding: 32px;
   color: #5e6c84;
 }
-
-/* Attachment styles */
-.slider-container {
+#JiraSpotter .slider-container {
   margin: 16px 0;
   background: #f4f5f7;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
-.attachment-wrapper {
+#JiraSpotter .attachment-wrapper {
   padding: 12px;
 }
-
-.attachment-header {
+#JiraSpotter .attachment-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
   padding: 0 4px;
 }
-
-.attachment-title {
+#JiraSpotter .attachment-title {
   font-weight: 500;
   color: #172b4d;
   font-size: 14px;
 }
-
-.attachment-nav {
+#JiraSpotter .attachment-nav {
   display: flex;
   gap: 8px;
 }
-
-.nav-button {
+#JiraSpotter .nav-button {
   background: #0052cc;
   color: white;
   border: none;
@@ -397,17 +348,14 @@ button:hover {
   transition: background-color 0.2s;
   padding: 0 12px;
 }
-
-.nav-button:hover {
+#JiraSpotter .nav-button:hover {
   background: #0747a6;
 }
-
-.nav-button:disabled {
+#JiraSpotter .nav-button:disabled {
   background: #dfe1e6;
   cursor: not-allowed;
 }
-
-.attachment-slider {
+#JiraSpotter .attachment-slider {
   position: relative;
   width: 100%;
   border-radius: 4px;
@@ -422,12 +370,10 @@ button:hover {
   scroll-behavior: smooth;
   background: #ffffff;
 }
-
-.attachment-slider::-webkit-scrollbar {
+#JiraSpotter .attachment-slider::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
-
-.attachment-slide {
+#JiraSpotter .attachment-slide {
   flex: 0 0 100%;
   scroll-snap-align: start;
   display: flex;
@@ -438,8 +384,7 @@ button:hover {
   border-radius: 4px;
   overflow: hidden;
 }
-
-.attachment-container {
+#JiraSpotter .attachment-container {
   position: relative;
   width: 100%;
   height: 100%;
@@ -448,25 +393,22 @@ button:hover {
   justify-content: center;
   padding: 8px;
 }
-
-.attachment-container img,
-.attachment-container video {
+#JiraSpotter .attachment-container img,
+#JiraSpotter .attachment-container video {
   max-width: 100%;
   max-height: 300px;
   object-fit: contain;
   margin: auto;
   border-radius: 4px;
 }
-
-.attachment-container .video-container {
+#JiraSpotter .attachment-container .video-container {
   width: 100%;
   max-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.expand-btn {
+#JiraSpotter .expand-btn {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -486,16 +428,13 @@ button:hover {
   opacity: 0;
   transition: all 0.2s;
 }
-
-.attachment-container:hover .expand-btn {
+#JiraSpotter .attachment-container:hover .expand-btn {
   opacity: 1;
 }
-
-.expand-btn:hover {
+#JiraSpotter .expand-btn:hover {
   background: #0747a6;
 }
-
-.attachment-modal {
+#JiraSpotter .attachment-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -507,8 +446,7 @@ button:hover {
   justify-content: center;
   z-index: 1000;
 }
-
-.modal-content {
+#JiraSpotter .modal-content {
   max-width: 90%;
   max-height: 90vh;
   background: white;
@@ -517,18 +455,15 @@ button:hover {
   position: relative;
   overflow: auto;
 }
-
-.modal-content img,
-.modal-content video {
+#JiraSpotter .modal-content img,
+#JiraSpotter .modal-content video {
   max-width: 100%;
   max-height: calc(90vh - 32px);
   object-fit: contain;
   display: block;
   margin: 0 auto;
 }
-
-/* Error and success states */
-.error {
+#JiraSpotter .error {
   background: #ffebe6;
   color: #bf2600;
   padding: 8px;
@@ -536,8 +471,7 @@ button:hover {
   margin-bottom: 16px;
   font-size: 14px;
 }
-
-.success {
+#JiraSpotter .success {
   background: #e3fcef;
   color: #006644;
   padding: 8px;
@@ -545,13 +479,3 @@ button:hover {
   margin-bottom: 16px;
   font-size: 14px;
 }
-
-/* .jira-spotter-hover {
-  position: relative;
-  z-index: 10000;
-  outline: 3px solid rgba(0, 150, 255, 0.9);
-  background-color: rgba(0, 150, 255, 0.2);
-  box-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
-  pointer-events: none;
-  transition: all 0.1s ease-in-out;
-} */
