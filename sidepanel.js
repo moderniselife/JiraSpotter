@@ -7,10 +7,60 @@ const ticketTemplate = document.getElementById('ticket-template');
 const oauthLoginBtn = document.getElementById('oauth-login');
 const logoutBtn = document.getElementById('logout-button');
 const ticketFilter = document.getElementById('ticket-filter');
+const themeToggle = document.getElementById('theme-toggle');
+const sunIcon = themeToggle.querySelector('.sun-icon');
+const moonIcon = themeToggle.querySelector('.moon-icon');
 
 // DOM Elements for filters
 const statusFilter = document.getElementById('status-filter');
 const sortOrder = document.getElementById('sort-order');
+
+// Theme Management
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+    } else {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+    }
+    chrome.storage.local.set({ theme });
+}
+
+function initializeTheme() {
+    chrome.storage.local.get(['theme', 'useSystemTheme'], ({ theme, useSystemTheme }) => {
+        if (useSystemTheme) {
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            setTheme(systemTheme);
+        } else if (theme) {
+            setTheme(theme);
+        } else {
+            setTheme('light');
+        }
+    });
+}
+
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    chrome.storage.local.get(['useSystemTheme'], ({ useSystemTheme }) => {
+        if (useSystemTheme) {
+            setTheme(e.matches ? 'dark' : 'light');
+        }
+    });
+});
+
+// Theme toggle click handler
+themeToggle.addEventListener('click', () => {
+    chrome.storage.local.get(['theme', 'useSystemTheme'], ({ theme }) => {
+        const newTheme = theme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+        chrome.storage.local.set({ useSystemTheme: false });
+    });
+});
+
+// Initialize theme on load
+initializeTheme();
 
 // Filter and sort tickets
 function filterAndSortTickets() {
