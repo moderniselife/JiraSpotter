@@ -1,4 +1,3 @@
-/* General styles */
 #JiraSpotter {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, sans-serif;
@@ -20,6 +19,10 @@
     flex-direction: column;
     gap: 12px;
     margin-bottom: 16px;
+
+    h2 {
+      margin: 0;
+    }
   }
 
   .header-top {
@@ -45,6 +48,12 @@
     border-radius: 4px;
     font-size: 14px;
     background-color: white;
+
+    &:focus {
+      outline: none;
+      border-color: #0052cc;
+      box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+    }
   }
 
   .filter-select {
@@ -55,21 +64,22 @@
     font-size: 14px;
     background-color: white;
     cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: #0052cc;
+      box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+    }
+
+    &:hover {
+      border-color: #0052cc;
+    }
   }
 
-  .ticket-filter:focus,
-  .filter-select:focus {
-    outline: none;
-    border-color: #0052cc;
-    box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
-  }
-
-  .filter-select:hover {
-    border-color: #0052cc;
-  }
-
-  .panel-header h2 {
-    margin: 0;
+  h2 {
+    margin-top: 0;
+    font-size: 18px;
+    color: #172b4d;
   }
 
   .logout-button {
@@ -81,16 +91,10 @@
     cursor: pointer;
     font-size: 12px;
     transition: background-color 0.2s;
-  }
 
-  .logout-button:hover {
-    background: #ebecf0;
-  }
-
-  h2 {
-    margin-top: 0;
-    font-size: 18px;
-    color: #172b4d;
+    &:hover {
+      background: #ebecf0;
+    }
   }
 
   /* Auth methods styles */
@@ -115,10 +119,10 @@
     font-size: 14px;
     font-weight: 500;
     transition: background-color 0.2s;
-  }
 
-  .auth-button:hover {
-    background: #0747a6;
+    &:hover {
+      background: #0747a6;
+    }
   }
 
   .auth-icon {
@@ -134,17 +138,17 @@
     color: #5e6c84;
     font-size: 12px;
     margin: 8px 0;
-  }
 
-  .separator::before,
-  .separator::after {
-    content: "";
-    flex: 1;
-    border-bottom: 1px solid #dfe1e6;
-  }
+    &::before,
+    &::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #dfe1e6;
+    }
 
-  .separator span {
-    padding: 0 10px;
+    span {
+      padding: 0 10px;
+    }
   }
 
   .help-link {
@@ -153,10 +157,10 @@
     color: #0052cc;
     text-decoration: none;
     margin-top: 4px;
-  }
 
-  .help-link:hover {
-    text-decoration: underline;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   /* Form styles */
@@ -190,10 +194,10 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-  }
 
-  button:hover {
-    background: #0747a6;
+    &:hover {
+      background: #0747a6;
+    }
   }
 
   /* Ticket styles */
@@ -233,10 +237,10 @@
     font-size: 12px;
     cursor: pointer;
     transition: background-color 0.2s;
-  }
 
-  .open-in-jira:hover {
-    background: #0747a6;
+    &:hover {
+      background: #0747a6;
+    }
   }
 
   .ticket-status {
@@ -244,21 +248,21 @@
     border-radius: 3px;
     font-size: 12px;
     font-weight: 500;
-  }
 
-  .ticket-status[data-status="to do"] {
-    background: #dfe1e6;
-    color: #172b4d;
-  }
+    &[data-status="to do"] {
+      background: #dfe1e6;
+      color: #172b4d;
+    }
 
-  .ticket-status[data-status="in progress"] {
-    background: #deebff;
-    color: #0747a6;
-  }
+    &[data-status="in progress"] {
+      background: #deebff;
+      color: #0747a6;
+    }
 
-  .ticket-status[data-status="done"] {
-    background: #e3fcef;
-    color: #006644;
+    &[data-status="done"] {
+      background: #e3fcef;
+      color: #006644;
+    }
   }
 
   .ticket-summary {
@@ -301,10 +305,10 @@
 
   .select-element-btn {
     background: #0747a6;
-  }
 
-  .select-element-btn:hover {
-    background: #0052cc;
+    &:hover {
+      background: #0052cc;
+    }
   }
 
   .tag-reference {
@@ -315,10 +319,10 @@
     background: #deebff;
     display: inline-block;
     margin: 0 2px;
-  }
 
-  .tag-reference:hover {
-    background: #b3d4ff;
+    &:hover {
+      background: #b3d4ff;
+    }
   }
 
   .ticket-comments {
@@ -396,15 +400,15 @@
     font-weight: 500;
     transition: background-color 0.2s;
     padding: 0 12px;
-  }
 
-  .nav-button:hover {
-    background: #0747a6;
-  }
+    &:hover {
+      background: #0747a6;
+    }
 
-  .nav-button:disabled {
-    background: #dfe1e6;
-    cursor: not-allowed;
+    &:disabled {
+      background: #dfe1e6;
+      cursor: not-allowed;
+    }
   }
 
   .attachment-slider {
@@ -421,10 +425,10 @@
     -ms-overflow-style: none; /* IE and Edge */
     scroll-behavior: smooth;
     background: #ffffff;
-  }
 
-  .attachment-slider::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
   }
 
   .attachment-slide {
@@ -447,23 +451,27 @@
     align-items: center;
     justify-content: center;
     padding: 8px;
-  }
 
-  .attachment-container img,
-  .attachment-container video {
-    max-width: 100%;
-    max-height: 300px;
-    object-fit: contain;
-    margin: auto;
-    border-radius: 4px;
-  }
+    img,
+    video {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      margin: auto;
+      border-radius: 4px;
+    }
 
-  .attachment-container .video-container {
-    width: 100%;
-    max-height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    .video-container {
+      width: 100%;
+      max-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &:hover .expand-btn {
+      opacity: 1;
+    }
   }
 
   .expand-btn {
@@ -485,14 +493,10 @@
     padding: 0 12px;
     opacity: 0;
     transition: all 0.2s;
-  }
 
-  .attachment-container:hover .expand-btn {
-    opacity: 1;
-  }
-
-  .expand-btn:hover {
-    background: #0747a6;
+    &:hover {
+      background: #0747a6;
+    }
   }
 
   .attachment-modal {
@@ -516,15 +520,15 @@
     padding: 16px;
     position: relative;
     overflow: auto;
-  }
 
-  .modal-content img,
-  .modal-content video {
-    max-width: 100%;
-    max-height: calc(90vh - 32px);
-    object-fit: contain;
-    display: block;
-    margin: 0 auto;
+    img,
+    video {
+      max-width: 100%;
+      max-height: calc(90vh - 32px);
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
   }
 
   /* Error and success states */
@@ -545,14 +549,15 @@
     margin-bottom: 16px;
     font-size: 14px;
   }
+}
 
-  /* .jira-spotter-hover {
-    position: relative;
-    z-index: 10000;
-    outline: 3px solid rgba(0, 150, 255, 0.9);
-    background-color: rgba(0, 150, 255, 0.2);
-    box-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
-    pointer-events: none;
-    transition: all 0.1s ease-in-out;
-    } */
+/* Hover state for element selection - kept outside as it's dynamically added to elements */
+.jira-spotter-hover {
+  position: relative;
+  z-index: 10000;
+  outline: 3px solid rgba(0, 150, 255, 0.9);
+  background-color: rgba(0, 150, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
+  pointer-events: none;
+  transition: all 0.1s ease-in-out;
 }

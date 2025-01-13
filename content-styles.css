@@ -1,0 +1,10 @@
+/* Only styles needed for the content script */
+.jira-spotter-hover {
+  position: relative;
+  z-index: 10000;
+  outline: 3px solid rgba(0, 150, 255, 0.9);
+  background-color: rgba(0, 150, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
+  pointer-events: none;
+  transition: all 0.1s ease-in-out;
+}

@@ -86,35 +86,61 @@ async function scanDOM() {
     }
 }
 
+// Create shadow root container for isolated styles
+let shadowRoot;
+function createShadowContainer() {
+    const container = document.createElement('div');
+    container.id = 'jira-spotter-container';
+    shadowRoot = container.attachShadow({ mode: 'open' });
+    
+    // Add styles to shadow DOM
+    const style = document.createElement('style');
+    style.textContent = `
+        #jira-spotter-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            padding: 10px 20px;
+            background-color: #0052CC;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        #jira-spotter-button:hover {
+            background-color: #0747a6;
+        }
+    `;
+    shadowRoot.appendChild(style);
+    document.body.appendChild(container);
+}
+
 // Create floating button
 function createFloatingButton() {
+    if (!shadowRoot) {
+        createShadowContainer();
+    }
+
     const button = document.createElement('button');
     button.id = 'jira-spotter-button';
     button.textContent = 'Jira Tasks';
-    button.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 10000;
-        padding: 10px 20px;
-        background-color: #0052CC;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    `;
 
     button.addEventListener('click', () => {
         chrome.runtime.sendMessage({ action: 'openSidePanel' });
     });
 
-    document.body.appendChild(button);
+    shadowRoot.appendChild(button);
 }
 
 // Function to manage button visibility
 function manageButtonVisibility() {
-    const existingButton = document.getElementById('jira-spotter-button');
+    if (!shadowRoot) {
+        createShadowContainer();
+    }
+    const existingButton = shadowRoot.getElementById('jira-spotter-button');
     const hasTaskIds = window.jiraTaskIds.size > 0;
 
     if (hasTaskIds && !existingButton) {

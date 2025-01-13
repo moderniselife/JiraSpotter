@@ -1,4 +1,3 @@
-/* General styles */
 #JiraSpotter {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   margin: 0;
@@ -11,15 +10,6 @@
   /* Loading state */
   /* Attachment styles */
   /* Error and success states */
-  /* .jira-spotter-hover {
-    position: relative;
-    z-index: 10000;
-    outline: 3px solid rgba(0, 150, 255, 0.9);
-    background-color: rgba(0, 150, 255, 0.2);
-    box-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
-    pointer-events: none;
-    transition: all 0.1s ease-in-out;
-    } */
 }
 #JiraSpotter .panel {
   background: white;
@@ -33,6 +23,9 @@
   flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
+}
+#JiraSpotter .panel-header h2 {
+  margin: 0;
 }
 #JiraSpotter .header-top {
   display: flex;
@@ -55,6 +48,11 @@
   font-size: 14px;
   background-color: white;
 }
+#JiraSpotter .ticket-filter:focus {
+  outline: none;
+  border-color: #0052cc;
+  box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+}
 #JiraSpotter .filter-select {
   flex: 1;
   padding: 8px;
@@ -64,7 +62,6 @@
   background-color: white;
   cursor: pointer;
 }
-#JiraSpotter .ticket-filter:focus,
 #JiraSpotter .filter-select:focus {
   outline: none;
   border-color: #0052cc;
@@ -73,8 +70,10 @@
 #JiraSpotter .filter-select:hover {
   border-color: #0052cc;
 }
-#JiraSpotter .panel-header h2 {
-  margin: 0;
+#JiraSpotter h2 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #172b4d;
 }
 #JiraSpotter .logout-button {
   background: #f4f5f7;
@@ -88,11 +87,6 @@
 }
 #JiraSpotter .logout-button:hover {
   background: #ebecf0;
-}
-#JiraSpotter h2 {
-  margin-top: 0;
-  font-size: 18px;
-  color: #172b4d;
 }
 #JiraSpotter .auth-methods {
   display: flex;
@@ -131,8 +125,7 @@
   font-size: 12px;
   margin: 8px 0;
 }
-#JiraSpotter .separator::before,
-#JiraSpotter .separator::after {
+#JiraSpotter .separator::before, #JiraSpotter .separator::after {
   content: "";
   flex: 1;
   border-bottom: 1px solid #dfe1e6;
@@ -408,6 +401,9 @@
   align-items: center;
   justify-content: center;
 }
+#JiraSpotter .attachment-container:hover .expand-btn {
+  opacity: 1;
+}
 #JiraSpotter .expand-btn {
   position: absolute;
   top: 8px;
@@ -427,9 +423,6 @@
   padding: 0 12px;
   opacity: 0;
   transition: all 0.2s;
-}
-#JiraSpotter .attachment-container:hover .expand-btn {
-  opacity: 1;
 }
 #JiraSpotter .expand-btn:hover {
   background: #0747a6;
@@ -478,4 +471,15 @@
   border-radius: 4px;
   margin-bottom: 16px;
   font-size: 14px;
+}
+
+/* Hover state for element selection - kept outside as it's dynamically added to elements */
+.jira-spotter-hover {
+  position: relative;
+  z-index: 10000;
+  outline: 3px solid rgba(0, 150, 255, 0.9);
+  background-color: rgba(0, 150, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
+  pointer-events: none;
+  transition: all 0.1s ease-in-out;
 }
