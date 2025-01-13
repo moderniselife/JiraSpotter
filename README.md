@@ -17,7 +17,7 @@ Jira Spotter is a Chrome extension designed to streamline your development workf
 
 ## 🛠️ Installation
 
-1. Download and install the Jira Spotter Chrome extension from the [Chrome Web Store](#).
+1. Download and install the Jira Spotter Chrome extension from the [Chrome Web Store](#) (soon - in review - for now download and load as unpacked extension).
 2. Click the extension icon in your browser to open the settings panel.
 3. Configure your Jira authentication method (OAuth or access key with base URL).
 4. Add `jira-taskid="JIRA ID HERE"` anywhere in your project's HTML, CSS, or JavaScript files.
@@ -52,7 +52,7 @@ The `jira-taskid` can also be used within comments in your JavaScript code:
 // jira-taskid="JIRA-91011"
 // This function implements the feature described in JIRA-91011
 function exampleFeature() {
-  console.log('Feature implemented');
+  console.log("Feature implemented");
 }
 ```
 
@@ -81,6 +81,7 @@ Jira Spotter supports two authentication methods:
    - Log in to your Jira account securely using OAuth.
 
 2. **Access Key and Base URL**:
+
    - Provide your Jira access key and base URL for quick setup.
 
 ---
@@ -162,7 +163,7 @@ For any questions, issues, or feedback, reach out at [Your Email Address].
 
 ## 📜 License
 
-Jira Spotter is licensed under the [MIT License](LICENSE).  
+Jira Spotter is licensed under the [MIT License](LICENSE).
 Feel free to use, modify, and distribute the extension as per the terms of the license.
 
 ---
