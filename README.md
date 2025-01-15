@@ -12,6 +12,13 @@ Jira Spotter is a Chrome extension designed to streamline your development workf
 - **Real-Time Insights**: Display linked Jira tickets in a responsive side panel while navigating your platform.
 - **Secure Authentication**: Supports both OAuth and access key/base URL authentication methods.
 - **Local Processing**: All operations are performed locally within your browser—no data is transmitted externally.
+- **Native Side Panel**: Seamlessly integrated with Chrome's side panel API for a better user experience.
+- **Test Recording**: Built-in Playwright test recorder for automated testing of Jira ticket workflows.
+- **Screenshot Capture**: Capture and attach screenshots directly to Jira tickets.
+- **Enhanced Jira Integration**: Full read/write access for ticket management and attachments.
+- **Smart Element Selection**: Automatically detect and link Jira tickets from selected text or elements.
+- **Element Tagging**: Link and highlight HTML elements using CSS or XPath selectors in Jira descriptions and comments.
+- **User Mentions**: Reference Jira users with @ mentions in ticket descriptions and comments.
 
 ---
 
@@ -70,6 +77,66 @@ Use `jira-taskid` within CSS comments to link styles to Jira tickets:
 
 Wherever you place the `jira-taskid`, the associated Jira task will appear in the side panel when the extension is active.
 
+### Smart Selection
+
+To quickly link Jira tickets from existing content:
+
+1. Select any text or element containing a Jira ticket reference
+2. Right-click and choose "Link Jira Ticket"
+3. The ticket will be automatically detected and linked
+
+### Element Tagging
+
+Link and highlight specific HTML elements using CSS or XPath selectors in Jira ticket descriptions and comments:
+
+#### CSS Selector Examples:
+
+```
+[tag]input[type="email"][/tag] - Links to email input fields
+[tag].submit-button[/tag] - Links to elements with class 'submit-button'
+[tag]#login-form[/tag] - Links to element with ID 'login-form'
+[tag]button.primary:first-child[/tag] - Links to first primary button
+```
+
+#### XPath Selector Examples:
+
+```
+[tag]//button[contains(text(), 'Submit')][/tag] - Links to button containing 'Submit'
+[tag]//div[@class='container']//input[/tag] - Links to inputs within container class
+[tag]//form[1]/div[2]/input[/tag] - Links to specific input using path
+[tag]//*[@data-testid='login-button'][/tag] - Links to element by test ID
+```
+
+When you click these tags in the Jira ticket:
+
+1. The matching element(s) on the page will be highlighted
+
+### User Mentions
+
+Reference team members in ticket descriptions and comments:
+
+```
+@john.doe Could you please review this implementation?
+@jane.smith This relates to your previous work on...
+```
+
+### Test Recording
+
+Jira Spotter includes a built-in test recorder that generates Playwright tests:
+
+1. Click the "Start Recording" button in the side panel
+2. Perform your actions on the page
+3. Click "Stop Recording" to generate a Playwright test script
+4. The test script will be automatically added to the comment field
+
+### Screenshot Integration
+
+To capture and attach screenshots to Jira tickets:
+
+1. Navigate to the relevant section of your page
+2. Click the "Capture Screenshot" button in the side panel
+3. The screenshot will be automatically attached to the comment field
+
 ---
 
 ## 🔒 Authentication
@@ -79,6 +146,13 @@ Jira Spotter supports two authentication methods:
 1. **OAuth**:
 
    - Log in to your Jira account securely using OAuth.
+   - Supports extended permissions for ticket management and attachments.
+   - Available scopes include:
+     - read:jira-work
+     - write:jira-work
+     - read:jira-user
+     - read:jira-attachment
+     - offline_access
 
 2. **Access Key and Base URL**:
 
@@ -104,6 +178,7 @@ To set up the development environment:
 1. Clone the repository
 
 2. Create a Jira OAuth App:
+
    - Go to https://developer.atlassian.com/console/myapps/
    - Create a new OAuth 2.0 app
    - After creating the app, launch JiraSpotter in Chrome
@@ -112,17 +187,20 @@ To set up the development environment:
    - Copy the Client ID and Client Secret
 
 3. Copy `.env.example` to `.env`:
+
    ```bash
    cp .env.example .env
    ```
 
 4. Add your Jira OAuth credentials to `.env`:
+
    ```
    JIRA_CLIENT_ID=your_client_id_here
    JIRA_CLIENT_SECRET=your_client_secret_here
    ```
 
 5. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -146,12 +224,37 @@ When building for production distribution:
 
 Note: The `config.js` file is gitignored to prevent accidentally committing credentials. Always use the build process to generate it.
 
+### Running Tests
+
+Jira Spotter uses Playwright for automated testing:
+
+1. Install Playwright:
+
+   ```bash
+   npx playwright install
+   ```
+
+2. Run the tests:
+
+   ```bash
+   npm test
+   ```
+
+3. To run recorded tests:
+   ```bash
+   npm run test:recorded
+   ```
+
 ---
 
 ## 🐛 Troubleshooting
 
 - **Jira tickets not appearing**: Ensure `jira-taskid` attributes or comments are correctly added and match existing Jira ticket IDs.
 - **Authentication issues**: Double-check your credentials and try re-authenticating.
+- **Screenshot capture fails**: Ensure the page has fully loaded before attempting to capture.
+- **Test recording issues**: Check that the page is accessible and interactive before recording.
+- **Element tags not highlighting**: Verify that the CSS or XPath selector in the [tag] syntax is valid and matches elements on the page.
+- **User mentions not resolving**: Ensure the mentioned users exist in your Jira instance and have access to the project.
 - **Other problems**: Contact us at joe@jjs.digital.
 
 ---
