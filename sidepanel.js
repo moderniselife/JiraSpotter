@@ -262,6 +262,11 @@ async function parseJiraContent(content, attachments = []) {
     // Add remaining text
     parsedContent += content.slice(lastIndex);
 
+    // Handle Jira block quotes
+    parsedContent = parsedContent.replace(/{quote}([\s\S]*?){quote}/g, (match, text) => {
+        return `> ${text.trim().split('\n').join('\n> ')}`;
+    });
+
     // Handle Jira code blocks
     parsedContent = parsedContent.replace(/{code(:([^}]+))?}([\s\S]*?){code}/g, (match, lang, langName, code) => {
         // Extract language if specified
