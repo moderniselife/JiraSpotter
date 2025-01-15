@@ -2,11 +2,25 @@
   "manifest_version": 3,
   "name": "Jira Spotter",
   "version": "1.0",
-  "description": "Finds and manages Jira tickets referenced in code via deit-taskID",
-  "permissions": ["activeTab", "tabs", "scripting", "storage", "sidePanel", "identity", "tabCapture"],
+  "description": "Finds and manages Jira tickets referenced in code via jira-taskID",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "storage",
+    "sidePanel",
+    "identity",
+    "tabCapture"
+  ],
   "oauth2": {
     "client_id": "${JIRA_CONFIG.CLIENT_ID}",
-    "scopes": ["read:jira-work", "write:jira-work", "read:jira-user", "read:jira-attachment", "offline_access"]
+    "scopes": [
+      "read:jira-work",
+      "write:jira-work",
+      "read:jira-user",
+      "read:jira-attachment",
+      "offline_access"
+    ]
   },
   "host_permissions": ["*://*/*"],
   "icons": {

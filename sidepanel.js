@@ -240,7 +240,8 @@ async function parseJiraContent(content, attachments = []) {
     });
 
     // Parse tags in content
-    const tagRegex = /\[tag\](.*?)\[\/tag\]/g;
+    // const tagRegex = /\[tag\](.*?)\[\/tag\]/g;
+    const tagRegex = /\[tag\]((?:(?!\[\/tag\]).)*)\[\/tag\]/gs;
     let lastIndex = 0;
     let parsedContent = '';
     let match;
@@ -250,11 +251,13 @@ async function parseJiraContent(content, attachments = []) {
         parsedContent += content.slice(lastIndex, match.index);
 
         // Add the tag as a clickable element
-        const selector = match[1];
+        const selector = match[1].replace(/"/g, '&quot;');  // Safely encode double quotes to prevent HTML attribute value issues
         parsedContent += `<span class="tag-reference" data-selector="${selector}">${selector}</span>`;
 
         lastIndex = tagRegex.lastIndex;
     }
+
+
 
     // Add remaining text
     parsedContent += content.slice(lastIndex);
@@ -279,7 +282,7 @@ async function parseJiraContent(content, attachments = []) {
     tempDiv.querySelectorAll('.tag-reference').forEach(tag => {
         const newTag = tag.cloneNode(true);
         newTag.addEventListener('click', async () => {
-            const selector = newTag.dataset.selector;
+            const selector = newTag.dataset.selector.replaceAll("&quote", '"');  // Decode double quotes back to original form
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             chrome.tabs.sendMessage(tab.id, {
                 action: 'highlightElement',
@@ -602,7 +605,7 @@ function removeDuplicateTickets() {
     const tickets = ticketsList.querySelectorAll('.ticket');
 
     tickets.forEach(ticket => {
-        const ticketId = ticket.dataset['ticket-id'];
+        const ticketId = ticket.dataset['ticketId'];
         if (seenTickets.has(ticketId)) {
             // Sync comments before removing duplicates
             syncTicketComments(ticketId);
@@ -667,7 +670,7 @@ async function loadTickets() {
             // Clean up any orphaned content
             contentTracker.cleanupRemoved();
             removeDuplicateTickets();
-            
+
             // Apply initial sorting
             filterAndSortTickets();
         } else if (!ticketsList.children.length || ticketsList.querySelector('.loading')) {
@@ -710,7 +713,7 @@ async function displayTicket(ticketData) {
         ticketContainer.querySelector('.ticket-status').textContent = ticketData.fields.status.name;
         ticketContainer.querySelector('.ticket-status').dataset.status = ticketData.fields.status.name.toLowerCase();
         ticketContainer.querySelector('.status-select').value = ticketData.fields.status.name.toLowerCase();
-        
+
         // Ensure creation date is set
         if (!ticketContainer.dataset.createdDate) {
             ticketContainer.dataset.createdDate = ticketData.fields.created || new Date().toISOString();
@@ -949,7 +952,7 @@ async function displayTicket(ticketData) {
                 commentInput.dataset.screenshotData = response.dataUrl;
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
                 commentInput.dataset.screenshotFilename = `screenshot-${timestamp}.png`;
-                
+
                 // Add placeholder text to comment
                 commentInput.value += `\n\n[Screenshot will be attached when comment is added]`;
                 commentInput.dispatchEvent(new Event('input'));
@@ -994,7 +997,7 @@ async function displayTicket(ticketData) {
             // Get screenshot data if it exists
             const screenshotData = commentInput.dataset.screenshotData;
             const filename = commentInput.dataset.screenshotFilename;
-            
+
             // Add comment with screenshot if available
             const response = await new Promise((resolve, reject) => {
                 chrome.runtime.sendMessage({

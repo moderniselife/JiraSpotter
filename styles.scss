@@ -234,6 +234,17 @@
     }
   }
 
+  /* Form styles */
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
   input[type="url"],
   input[type="password"],
   textarea,
@@ -297,6 +308,22 @@
   .ticket-key {
     margin: 0;
     font-size: 16px;
+    color: var(--primary-color);
+  }
+
+  .open-in-jira {
+    background: #0052cc;
+    color: white !important;
+    border: none;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background: #0747a6;
+    }
     color: var(--primary-color);
   }
 
@@ -376,6 +403,236 @@
     border-radius: 4px;
     margin-bottom: 16px;
     font-size: 14px;
+  }
+
+  /* Loading state */
+  .loading {
+    text-align: center;
+    padding: 32px;
+    color: #5e6c84;
+  }
+
+  /* Attachment styles */
+  .slider-container {
+    margin: 16px 0;
+    background: #f4f5f7;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .attachment-wrapper {
+    padding: 12px;
+  }
+
+  .attachment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+
+  .attachment-title {
+    font-weight: 500;
+    color: #172b4d;
+    font-size: 14px;
+  }
+
+  .attachment-nav {
+    display: flex;
+    gap: 8px;
+  }
+
+  .nav-button {
+    background: #0052cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    min-width: 60px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    padding: 0 12px;
+
+    &:hover {
+      background: #0747a6;
+    }
+
+    &:disabled {
+      background: #dfe1e6;
+      cursor: not-allowed;
+    }
+  }
+
+  .attachment-slider {
+    position: relative;
+    width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    gap: 12px;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    padding: 4px 8px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scroll-behavior: smooth;
+    background: #ffffff;
+
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+  }
+
+  .attachment-slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    background: #ffffff;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .attachment-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+
+    img,
+    video {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      margin: auto;
+      border-radius: 4px;
+    }
+
+    .video-container {
+      width: 100%;
+      max-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &:hover .expand-btn {
+      opacity: 1;
+    }
+  }
+
+  .expand-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    min-width: 60px;
+    height: 32px;
+    background: #0052cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0 12px;
+    opacity: 0;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #0747a6;
+    }
+  }
+
+  .attachment-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    max-width: 90%;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+    overflow: auto;
+
+    img,
+    video {
+      max-width: 100%;
+      max-height: calc(90vh - 32px);
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+  }
+
+  .status-select {
+    margin-bottom: 16px;
+  }
+
+  .comment-section {
+    margin-top: 16px;
+  }
+
+  .comment-input {
+    min-height: 80px;
+    margin-bottom: 8px;
+    resize: vertical;
+  }
+
+  .comment-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .select-element-btn {
+    background: #0747a6;
+
+    &:hover {
+      background: #0052cc;
+    }
+  }
+
+  .tag-reference {
+    color: #0052cc;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: #deebff;
+    display: inline-block;
+    margin: 0 2px;
+
+    &:hover {
+      background: #b3d4ff;
+    }
+  }
+
+  .ticket-comments {
+    margin-top: 16px;
   }
 }
 

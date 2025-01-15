@@ -92,7 +92,7 @@ function createShadowContainer() {
     const container = document.createElement('div');
     container.id = 'jira-spotter-container';
     shadowRoot = container.attachShadow({ mode: 'open' });
-    
+
     // Add styles to shadow DOM
     const style = document.createElement('style');
     style.textContent = `
@@ -233,31 +233,31 @@ function disableElementSelection() {
 // Handle element hover during selection mode
 document.addEventListener('mouseover', (e) => {
     if (!isSelectingElement) return;
-    
+
     // Ignore elements in our shadow DOM
     if (e.target.closest('#jira-spotter-container')) return;
-    
+
     // Remove previous highlight
     const highlighted = document.querySelector('.jira-spotter-hover');
     if (highlighted) highlighted.classList.remove('jira-spotter-hover');
-    
+
     // Add highlight to current target
     const target = e.target;
     target.classList.add('jira-spotter-hover');
-    
+
     e.stopPropagation();
 }, true); // Use capture phase
 
 // Handle element selection
 document.addEventListener('click', (e) => {
     if (!isSelectingElement) return;
-    
+
     // Ignore elements in our shadow DOM
     if (e.target.closest('#jira-spotter-container')) return;
-    
+
     e.preventDefault();
     e.stopPropagation();
-    
+
     const element = e.target;
     const tagName = element.tagName.toLowerCase();
     const id = element.id;
@@ -296,24 +296,32 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('Request Active: Highlight Element');
         console.log(`Highlighting element: ${request.selector}`);
         console.log('Request Info', request)
-        // Add highlight effect on hover
+
         const style = document.createElement('style');
         style.id = 'element-selector-style';
         style.textContent = `
-        .jira-spotter-hover {
-            outline: 2px solid #0052CC !important;
-            outline-offset: 1px !important;
-        }
-    `;
+    .jira-spotter-hover {
+        outline: 2px solid #0052CC !important;
+        outline-offset: 1px !important;
+    }`;
         document.head.appendChild(style);
-        const element = document.querySelector(request.selector);
+
+        let element;
+        if (request.selector.startsWith('//')) {
+            // XPath selector
+            const result = document.evaluate(request.selector, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+            element = result.singleNodeValue;
+        } else {
+            // CSS selector
+            element = document.querySelector(request.selector);
+        }
+
         if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             element.classList.add('jira-spotter-hover');
-            setTimeout(() => {
-                element.classList.remove('jira-spotter-hover');
-            }, 2000);
+            setTimeout(() => element.classList.remove('jira-spotter-hover'), 2000);
         }
+
         sendResponse({ success: !!element });
     }
 });
