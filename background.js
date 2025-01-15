@@ -29,6 +29,34 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 // Import Jira OAuth configuration
 importScripts('config.js');
 
+// Helper function to handle Jira API requests with authentication
+async function handleJiraRequest(url, options, retryCount = 0) {
+    try {
+        const response = await fetch(url, options);
+        
+        if (response.status === 401 && retryCount < 1) {
+            // Token expired, try to refresh
+            if (jiraConfig.authType === 'oauth') {
+                await refreshAccessToken();
+                // Update authorization header with new token
+                options.headers.Authorization = getAuthHeader();
+                // Retry request
+                return handleJiraRequest(url, options, retryCount + 1);
+            }
+        }
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || response.statusText);
+        }
+        
+        return response;
+    } catch (error) {
+        console.error('Jira request failed:', error);
+        throw error;
+    }
+}
+
 // OAuth configuration
 function getOAuthConfig() {
     return {
@@ -513,6 +541,90 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         sendResponse({ error: error.message });
                     }
                 });
+            return true;
+
+        case 'storeSharedTaskId':
+            // First try to get the shared storage issue
+            handleJiraRequest(`${jiraConfig.baseUrl}/rest/api/2/search?jql=project=DEV AND summary~'"JiraSpotter Shared Storage"'`, {
+                headers: {
+                    'Authorization': getAuthHeader(),
+                    'Content-Type': 'application/json'
+                }
+            }, 0)
+            .then(async response => {
+                const data = await response.json();
+                if (data.issues && data.issues.length > 0) {
+                    // Update existing issue
+                    return handleJiraRequest(`${jiraConfig.baseUrl}/rest/api/2/issue/${data.issues[0].key}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': getAuthHeader(),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            fields: {
+                                description: JSON.stringify({
+                                    manualTasks: request.taskIds
+                                })
+                            }
+                        })
+                    });
+                } else {
+                    // Create new issue for storage
+                    return handleJiraRequest(`${jiraConfig.baseUrl}/rest/api/2/issue`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': getAuthHeader(),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            fields: {
+                                project: { key: 'DEV' },
+                                summary: 'JiraSpotter Shared Storage',
+                                description: JSON.stringify({
+                                    manualTasks: request.taskIds
+                                }),
+                                issuetype: { name: 'Task' }
+                            }
+                        })
+                    });
+                }
+            })
+            .then(response => {
+                sendResponse({ success: true });
+            })
+            .catch(error => {
+                console.error('Error storing shared tasks:', error);
+                sendResponse({ error: error.message });
+            });
+            return true;
+
+        case 'getSharedTaskIds':
+            // Get shared task IDs from storage issue
+            handleJiraRequest(`${jiraConfig.baseUrl}/rest/api/2/search?jql=project=DEV AND summary~'"JiraSpotter Shared Storage"'`, {
+                headers: {
+                    'Authorization': getAuthHeader(),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (data.issues && data.issues.length > 0) {
+                    const description = data.issues[0].fields.description;
+                    try {
+                        const stored = JSON.parse(description || '{}');
+                        sendResponse({ taskIds: stored.manualTasks || [] });
+                    } catch (e) {
+                        sendResponse({ taskIds: [] });
+                    }
+                } else {
+                    sendResponse({ taskIds: [] });
+                }
+            })
+            .catch(error => {
+                console.error('Error getting shared tasks:', error);
+                sendResponse({ taskIds: [] });
+            });
             return true;
 
         case 'searchJiraUsers':

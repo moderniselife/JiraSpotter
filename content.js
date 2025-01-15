@@ -2,6 +2,16 @@
 window.jiraTaskIds = new Set();
 window.lastRightClickedElement = null;
 
+// Load shared task IDs
+chrome.runtime.sendMessage({ action: 'getSharedTaskIds' }, (response) => {
+    if (response && response.taskIds) {
+        response.taskIds.forEach(id => window.jiraTaskIds.add(id));
+        manageButtonVisibility();
+    } else {
+        console.warn('Failed to load shared task IDs:', response);
+    }
+});
+
 // Store the element that was right-clicked
 document.addEventListener('contextmenu', (e) => {
     window.lastRightClickedElement = e.target;
@@ -252,8 +262,46 @@ function showTicketSelectionDialog(existingTickets, elementDesc) {
             const isValid = /^[A-Z]+-\d+$/.test(ticketId);
 
             if (isValid) {
-                container.remove();
-                resolve({ ticketId, context });
+                // Store the manually entered task ID in shared storage
+                try {
+                    chrome.runtime.sendMessage({ action: 'getSharedTaskIds' }, (response) => {
+                        if (!response) {
+                            console.warn('No response from getSharedTaskIds');
+                            // Continue with local storage only
+                            window.jiraTaskIds.add(ticketId);
+                            manageButtonVisibility();
+                            container.remove();
+                            resolve({ ticketId, context });
+                            return;
+                        }
+
+                        const taskIds = new Set(response.taskIds || []);
+                        taskIds.add(ticketId);
+                        chrome.runtime.sendMessage(
+                            {
+                                action: 'storeSharedTaskId',
+                                taskIds: Array.from(taskIds)
+                            },
+                            (storeResponse) => {
+                                if (storeResponse && storeResponse.error) {
+                                    console.error('Error storing shared task:', storeResponse.error);
+                                }
+                                // Continue even if storage failed
+                                window.jiraTaskIds.add(ticketId);
+                                manageButtonVisibility();
+                                container.remove();
+                                resolve({ ticketId, context });
+                            }
+                        );
+                    });
+                } catch (error) {
+                    console.error('Error in ticket selection:', error);
+                    // Continue with local storage only
+                    window.jiraTaskIds.add(ticketId);
+                    manageButtonVisibility();
+                    container.remove();
+                    resolve({ ticketId, context });
+                }
             } else {
                 error.style.display = 'block';
                 input.focus();
@@ -487,16 +535,32 @@ function debounce(func, wait) {
 // Listen for DOM changes
 const observer = new MutationObserver(
     debounce(async () => {
-        const previousTaskIds = new Set(window.jiraTaskIds);
-        window.jiraTaskIds.clear();
-        await scanDOM();
+        try {
+            // Get shared manually added tasks
+            chrome.runtime.sendMessage({ action: 'getSharedTaskIds' }, async (response) => {
+                if (!response) {
+                    console.warn('No response from getSharedTaskIds');
+                    return;
+                }
 
-        // Check if the sets are different
-        const hasChanges = previousTaskIds.size !== window.jiraTaskIds.size ||
-            ![...previousTaskIds].every(id => window.jiraTaskIds.has(id));
+                const sharedTaskIds = new Set(response.taskIds || []);
+                const previousTaskIds = new Set(window.jiraTaskIds);
+                
+                // Clear and rescan, but preserve shared tasks
+                window.jiraTaskIds.clear();
+                sharedTaskIds.forEach(id => window.jiraTaskIds.add(id));
+                await scanDOM();
 
-        if (hasChanges) {
-            manageButtonVisibility();
+                // Check if the sets are different
+                const hasChanges = previousTaskIds.size !== window.jiraTaskIds.size ||
+                    ![...previousTaskIds].every(id => window.jiraTaskIds.has(id));
+
+                if (hasChanges) {
+                    manageButtonVisibility();
+                }
+            });
+        } catch (error) {
+            console.error('Error in observer callback:', error);
         }
     }, 1000) // Debounce for 1 second
 );
@@ -702,9 +766,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 const selector = generateSelector(element);
                 const comment = `Element linked: \n{quote}${elementDesc}{quote}\n\n` +
                     (context ? `Context: \n{quote}${context}{quote}\n\n` : '') +
-                    `Selector: \`${selector}\`\n\n` +
+                    `Selector: [tag]${selector}[/tag]\n\n` +
                     `Source: ${window.location.href}`;
-                
+
                 chrome.runtime.sendMessage({
                     action: 'addComment',
                     ticketId: ticketId,
