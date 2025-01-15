@@ -99,8 +99,7 @@ function createShadowContainer() {
     // Add styles to shadow DOM
     const style = document.createElement('style');
     style.textContent = `
-        #jira-spotter-button,
-        #record-test-button {
+        #jira-spotter-button {
             position: fixed;
             z-index: 10000;
             padding: 10px 20px;
@@ -116,19 +115,8 @@ function createShadowContainer() {
             bottom: 20px;
             right: 20px;
         }
-        #record-test-button {
-            bottom: 20px;
-            right: 140px;
-        }
-        #jira-spotter-button:hover,
-        #record-test-button:hover {
+        #jira-spotter-button:hover {
             background-color: #0747a6;
-        }
-        #record-test-button.recording {
-            background-color: #DE350B;
-        }
-        #record-test-button.recording:hover {
-            background-color: #BF2600;
         }
     `;
     shadowRoot.appendChild(style);

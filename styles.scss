@@ -675,6 +675,15 @@
     }
   }
 
+  .record-test-btn {
+    &.recording {
+      background-color: #de350b;
+    }
+    &.recording:hover {
+      background-color: #bf2600;
+    }
+  }
+
   .tag-reference {
     color: #0052cc;
     cursor: pointer;

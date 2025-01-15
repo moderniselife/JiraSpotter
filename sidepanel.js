@@ -700,6 +700,8 @@ async function fetchTicketData(ticketId) {
     });
 }
 
+var messageListenerAttached = false;
+
 // Display a ticket in the panel
 async function displayTicket(ticketData) {
     const normalizedKey = ticketData.key.toUpperCase();
@@ -1104,36 +1106,39 @@ async function displayTicket(ticketData) {
         }
     });
 
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        if (request.action === 'addTestToComment') {
-            console.log('Comment input selector:', request.ticketId);
-            let commentInput = document.querySelector(`[data-ticket-id="${request.ticketId}"] .comment-input`);
-            if (!commentInput) {
-                sendResponse({ error: 'No comment input found' });
+    if (!messageListenerAttached) {
+        messageListenerAttached = true;
+        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+            if (request.action === 'addTestToComment') {
+                console.log('Comment input selector:', request.ticketId);
+                let commentInput = document.querySelector(`[data-ticket-id="${request.ticketId}"] .comment-input`);
+                if (!commentInput) {
+                    sendResponse({ error: 'No comment input found' });
+                    return true;
+                }
+
+                // Add test content to comment input
+                commentInput.value = request.content;
+                commentInput.dispatchEvent(new Event('input'));
+                sendResponse({ success: true });
+                return true;
+            } else if (request.action === 'elementSelected') {
+                console.log('Element selected:', request.selector);
+                console.log('Comment input selector:', request.ticketId);
+                let commentInput = document.querySelector(`[data-ticket-id="${request.ticketId}"] .comment-input`);
+                if (!commentInput) {
+                    return true;
+                }
+
+                const selector = request.selector;
+                const tagText = `[tag]${selector}[/tag]`;
+                const cursorPos = commentInput.selectionStart;
+                const currentValue = commentInput.value;
+                commentInput.value = currentValue.slice(0, cursorPos) + tagText + currentValue.slice(cursorPos);
                 return true;
             }
-
-            // Add test content to comment input
-            commentInput.value = request.content;
-            commentInput.dispatchEvent(new Event('input'));
-            sendResponse({ success: true });
-            return true;
-        } else if (request.action === 'elementSelected') {
-            console.log('Element selected:', request.selector);
-            console.log('Comment input selector:', request.ticketId);
-            let commentInput = document.querySelector(`[data-ticket-id="${request.ticketId}"] .comment-input`);
-            if (!commentInput) {
-                return true;
-            }
-
-            const selector = request.selector;
-            const tagText = `[tag]${selector}[/tag]`;
-            const cursorPos = commentInput.selectionStart;
-            const currentValue = commentInput.value;
-            commentInput.value = currentValue.slice(0, cursorPos) + tagText + currentValue.slice(cursorPos);
-            return true;
-        }
-    });
+        });
+    }
 
     addCommentBtn.addEventListener('click', async () => {
         const comment = commentInput.value.trim().replace('[Screenshot will be attached when comment is added]', '').trim();
