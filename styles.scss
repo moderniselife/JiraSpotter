@@ -701,6 +701,39 @@
   .ticket-comments {
     margin-top: 16px;
   }
+
+  /* Code block styles */
+  pre {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 12px;
+    margin: 8px 0;
+    overflow-x: auto;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    tab-size: 2;
+
+    code {
+      display: block;
+      color: var(--text-primary);
+      background: none;
+      border: none;
+      padding: 0;
+      white-space: pre;
+    }
+  }
+
+  code {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--text-primary);
+  }
 }
 
 .jira-spotter-hover {

@@ -262,8 +262,21 @@ async function parseJiraContent(content, attachments = []) {
     // Add remaining text
     parsedContent += content.slice(lastIndex);
 
+    // Handle Jira code blocks
+    parsedContent = parsedContent.replace(/{code(:([^}]+))?}([\s\S]*?){code}/g, (match, lang, langName, code) => {
+        // Extract language if specified
+        const language = langName ? langName.split('=')[1] || '' : '';
+        // Create code block HTML
+        return `\`\`\`${language}\n${code.trim()}\n\`\`\``;
+    });
+
     // Parse with marked
-    const markedContent = marked.parse(parsedContent, { sanitize: false });
+    const markedContent = marked.parse(parsedContent, {
+        sanitize: false,
+        highlight: function(code, lang) {
+            return code;
+        }
+    });
 
     // Create a temporary div to ensure proper HTML structure
     const tempDiv = document.createElement('div');
