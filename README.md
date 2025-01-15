@@ -83,7 +83,8 @@ To quickly link Jira tickets from existing content:
 
 1. Select any text or element containing a Jira ticket reference
 2. Right-click and choose "Link Jira Ticket"
-3. The ticket will be automatically detected and linked
+3. You will be asked to pick from tickets found on the page or to enter a Jira URL/ID
+4. A comment will then be added to the ticket - but won't show in the JiraSpotter side panel unless we can figure out a way to do that..
 
 ### Element Tagging
 
