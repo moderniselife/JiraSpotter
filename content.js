@@ -279,35 +279,38 @@ document.addEventListener('click', (e) => {
 });
 
 // New function to get all elements with unique selectors
-function getAllPageElements() {
+function getAllPageElements(searchText = '') {
     const elements = document.querySelectorAll('*');
     const elementList = [];
-
+    
     elements.forEach(element => {
         // Skip our own elements
         if (element.closest('#jira-spotter-container')) return;
-
+        
         const tagName = element.tagName.toLowerCase();
         const id = element.id;
         const classes = Array.from(element.classList).join('.');
-
+        
         let selector = tagName;
         if (id) selector += `#${id}`;
         if (classes) selector += `.${classes}`;
-
+        
         // Add readable description
         let description = tagName;
         if (element.textContent) {
             const text = element.textContent.trim().substring(0, 30);
             if (text) description += ` "${text}${text.length > 30 ? '...' : ''}"`;
         }
-
-        elementList.push({
-            selector,
-            description
-        });
+        
+        // Filter elements based on search text
+        if (description.includes(searchText) || selector.includes(searchText)) {
+            elementList.push({
+                selector,
+                description
+            });
+        }
     });
-
+    
     return elementList;
 }
 
@@ -358,6 +361,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         sendResponse({ success: !!element });
     } else if (request.action === 'getPageElements') {
-        sendResponse({ elements: getAllPageElements() });
+        const searchText = request.searchText || '';
+        sendResponse({ elements: getAllPageElements(searchText) });
     }
 });

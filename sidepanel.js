@@ -926,35 +926,41 @@ async function displayTicket(ticketData) {
     commentInput.addEventListener('input', async (e) => {
         const cursorPos = e.target.selectionStart;
         const value = e.target.value;
-
-        // Check if user just typed "[tag]"
-        if (value.slice(0, cursorPos).endsWith('[tag]')) {
+        
+        // Check if user typed "[tag]" and additional text
+        const tagIndex = value.lastIndexOf('[tag]');
+        if (tagIndex !== -1) {
+            const searchText = value.slice(tagIndex + 5, cursorPos).trim(); // Get text after "[tag]"
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             const response = await chrome.tabs.sendMessage(tab.id, {
-                action: 'getPageElements'
+                action: 'getPageElements',
+                searchText: searchText
             });
-
+            
             if (response.elements) {
-                // Create dropdown with elements
-                const dropdown = document.createElement('div');
-                dropdown.className = 'element-selector-dropdown';
-
+                // Create or update dropdown with elements
+                let dropdown = commentInput.parentElement.querySelector('.element-selector-dropdown');
+                if (!dropdown) {
+                    dropdown = document.createElement('div');
+                    dropdown.className = 'element-selector-dropdown';
+                    commentInput.parentElement.appendChild(dropdown);
+                } else {
+                    dropdown.innerHTML = ''; // Clear existing options
+                }
+                
                 response.elements.forEach(element => {
                     const option = document.createElement('div');
                     option.className = 'element-option';
                     option.textContent = element.description;
                     option.addEventListener('click', () => {
-                        // Replace [tag] with the selected element
-                        const beforeTag = value.slice(0, cursorPos - 5); // -5 for "[tag]"
+                        // Replace [tag] and search text with the selected element
+                        const beforeTag = value.slice(0, tagIndex);
                         const afterTag = value.slice(cursorPos);
                         commentInput.value = beforeTag + `[tag]${element.selector}[/tag]` + afterTag;
                         dropdown.remove();
                     });
                     dropdown.appendChild(option);
                 });
-
-                // Position dropdown below cursor
-                commentInput.parentElement.appendChild(dropdown);
             }
         }
     });
