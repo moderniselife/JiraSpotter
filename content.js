@@ -151,42 +151,44 @@ function createFloatingButton() {
     shadowRoot.appendChild(button);
 
     // Create Record Test button
-    const recordButton = document.createElement('button');
-    recordButton.id = 'record-test-button';
-    recordButton.textContent = 'Record Test';
-    recordButton.addEventListener('click', toggleTestRecording);
-    shadowRoot.appendChild(recordButton);
+    // const recordButton = document.createElement('button');
+    // recordButton.id = 'record-test-button';
+    // recordButton.textContent = 'Record Test';
+    // recordButton.addEventListener('click', toggleTestRecording);
+    // shadowRoot.appendChild(recordButton);
 }
 
 // Handle test recording
-function toggleTestRecording() {
-    const recordButton = shadowRoot.getElementById('record-test-button');
-    
+function toggleTestRecording(ticketId) {
+    // const recordButton = shadowRoot.getElementById('record-test-button');
+
     if (!testRecorder.recording) {
         // Start recording
         testRecorder.start();
-        recordButton.textContent = 'Stop Recording';
-        recordButton.classList.add('recording');
-        
+        // recordButton.textContent = 'Stop Recording';
+        // recordButton.classList.add('recording');
+
         // Record initial page URL
         testRecorder.recordNavigation(window.location.href);
-        
+
         // Add click event listener for recording
         document.addEventListener('click', recordInteraction, true);
         document.addEventListener('input', recordInput, true);
     } else {
         // Stop recording
         const test = testRecorder.stop();
-        recordButton.textContent = 'Record Test';
-        recordButton.classList.remove('recording');
-        
+        // recordButton.textContent = 'Record Test';
+        // recordButton.classList.remove('recording');
+
         // Remove event listeners
         document.removeEventListener('click', recordInteraction, true);
         document.removeEventListener('input', recordInput, true);
-        
+
         // Add test to comment box in sidepanel
+        console.log('Comment input selector:', ticketId);
         chrome.runtime.sendMessage({
             action: 'addTestToComment',
+            ticketId: ticketId,
             content: `{code:javascript}\n${test}\n{code}\n\nPlaywright test recorded at ${new Date().toLocaleString()}`
         });
     }
@@ -201,11 +203,11 @@ function recordInteraction(event) {
     const tagName = element.tagName.toLowerCase();
     const id = element.id;
     const classes = Array.from(element.classList).join('.');
-    
+
     let selector = tagName;
     if (id) selector += `#${id}`;
     if (classes) selector += `.${classes}`;
-    
+
     const text = element.textContent.trim();
     testRecorder.recordClick(selector, text.substring(0, 30));
 }
@@ -219,11 +221,11 @@ function recordInput(event) {
     const tagName = element.tagName.toLowerCase();
     const id = element.id;
     const classes = Array.from(element.classList).join('.');
-    
+
     let selector = tagName;
     if (id) selector += `#${id}`;
     if (classes) selector += `.${classes}`;
-    
+
     testRecorder.recordInput(selector, event.target.value);
 }
 
@@ -362,9 +364,11 @@ document.addEventListener('click', (e) => {
     if (classes) selector += `.${classes}`;
 
     // Send the selector to the sidepanel
+    console.log('Updating Comment for Ticket ID:', window.ticketId);
     chrome.runtime.sendMessage({
         action: 'elementSelected',
-        selector: selector
+        selector: selector,
+        ticketId: window.ticketId
     });
 
     disableElementSelection();
@@ -374,26 +378,26 @@ document.addEventListener('click', (e) => {
 function getAllPageElements(searchText = '') {
     const elements = document.querySelectorAll('*');
     const elementList = [];
-    
+
     elements.forEach(element => {
         // Skip our own elements
         if (element.closest('#jira-spotter-container')) return;
-        
+
         const tagName = element.tagName.toLowerCase();
         const id = element.id;
         const classes = Array.from(element.classList).join('.');
-        
+
         let selector = tagName;
         if (id) selector += `#${id}`;
         if (classes) selector += `.${classes}`;
-        
+
         // Add readable description
         let description = tagName;
         if (element.textContent) {
             const text = element.textContent.trim().substring(0, 30);
             if (text) description += ` "${text}${text.length > 30 ? '...' : ''}"`;
         }
-        
+
         // Filter elements based on search text
         if (description.includes(searchText) || selector.includes(searchText)) {
             elementList.push({
@@ -402,7 +406,7 @@ function getAllPageElements(searchText = '') {
             });
         }
     });
-    
+
     return elementList;
 }
 
@@ -418,7 +422,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             sendResponse({ success: true, dataUrl });
         });
         return true; // Required for async response
+    } else if (request.action === 'toggleTestRecording') {
+        toggleTestRecording(request.ticketId);
+        sendResponse({ success: true, recording: testRecorder.recording });
     } else if (request.action === 'startElementSelection') {
+        // Store request.ticketId for later use for element selection
+        window.ticketId = request.ticketId;
         enableElementSelection();
         sendResponse({ success: true });
     } else if (request.action === 'highlightElement') {

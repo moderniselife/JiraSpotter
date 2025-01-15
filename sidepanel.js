@@ -1,46 +1,3 @@
-// Global message listener for handling test records and element selection
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'addTestToComment') {
-        // Find the active ticket
-        const activeTicket = document.querySelector('.ticket');
-        if (!activeTicket) {
-            sendResponse({ error: 'No active ticket found' });
-            return true;
-        }
-
-        // Find the comment input in the active ticket
-        const commentInput = activeTicket.querySelector('.comment-input');
-        if (!commentInput) {
-            sendResponse({ error: 'No comment input found' });
-            return true;
-        }
-
-        // Add test content to comment input
-        commentInput.value = request.content;
-        commentInput.dispatchEvent(new Event('input'));
-        sendResponse({ success: true });
-        return true;
-    } else if (request.action === 'elementSelected') {
-        // Find the active ticket's comment input
-        const activeTicket = document.querySelector('.ticket');
-        if (!activeTicket) {
-            return true;
-        }
-
-        const commentInput = activeTicket.querySelector('.comment-input');
-        if (!commentInput) {
-            return true;
-        }
-
-        const selector = request.selector;
-        const tagText = `[tag]${selector}[/tag]`;
-        const cursorPos = commentInput.selectionStart;
-        const currentValue = commentInput.value;
-        commentInput.value = currentValue.slice(0, cursorPos) + tagText + currentValue.slice(cursorPos);
-        return true;
-    }
-});
-
 // DOM Elements
 const configPanel = document.getElementById('config-panel');
 const configForm = document.getElementById('config-form');
@@ -965,6 +922,7 @@ async function displayTicket(ticketData) {
     const addCommentBtn = commentForm.querySelector('.add-comment-btn');
     const selectElementBtn = commentForm.querySelector('.select-element-btn');
     const attachScreenshotBtn = commentForm.querySelector('.attach-screenshot-btn');
+    const recordButton = commentForm.querySelector('.record-test-btn');
 
     // Function to fetch Jira users
     async function fetchJiraUsers(searchText) {
@@ -988,14 +946,14 @@ async function displayTicket(ticketData) {
     commentInput.addEventListener('input', async (e) => {
         const cursorPos = e.target.selectionStart;
         const value = e.target.value;
-        
+
         // Check for @ mentions
         const atIndex = value.lastIndexOf('@', cursorPos);
         if (atIndex !== -1 && (atIndex === 0 || value[atIndex - 1] === ' ')) {
             const searchText = value.slice(atIndex + 1, cursorPos).trim();
             try {
                 const users = await fetchJiraUsers(searchText);
-                
+
                 // Create or update dropdown for user mentions
                 let dropdown = commentInput.parentElement.querySelector('.user-mention-dropdown');
                 if (!dropdown) {
@@ -1004,7 +962,7 @@ async function displayTicket(ticketData) {
                     commentInput.parentElement.appendChild(dropdown);
                 }
                 dropdown.innerHTML = ''; // Clear existing options
-                
+
                 if (users && users.length > 0) {
                     users.forEach(user => {
                         const option = document.createElement('div');
@@ -1043,7 +1001,7 @@ async function displayTicket(ticketData) {
                 dropdown.remove();
             }
         }
-        
+
         // Check if user typed "[tag]" and additional text
         const tagIndex = value.lastIndexOf('[tag]');
         if (tagIndex !== -1) {
@@ -1053,7 +1011,7 @@ async function displayTicket(ticketData) {
                 action: 'getPageElements',
                 searchText: searchText
             });
-            
+
             if (response.elements) {
                 // Create or update dropdown with elements
                 let dropdown = commentInput.parentElement.querySelector('.element-selector-dropdown');
@@ -1064,7 +1022,7 @@ async function displayTicket(ticketData) {
                 } else {
                     dropdown.innerHTML = ''; // Clear existing options
                 }
-                
+
                 response.elements.forEach(element => {
                     const option = document.createElement('div');
                     option.className = 'element-option';
@@ -1082,10 +1040,30 @@ async function displayTicket(ticketData) {
         }
     });
 
+    function getUniqueSelector(element) {
+        if (element.id) return `#${element.id}`;
+        if (element.className) return `.${element.className.split(' ').join('.')}`;
+        return element.tagName.toLowerCase();
+    }
+
     // Handle element selection button click
     selectElementBtn.addEventListener('click', async () => {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        chrome.tabs.sendMessage(tab.id, { action: 'startElementSelection' });
+        chrome.tabs.sendMessage(tab.id, { action: 'startElementSelection', ticketId: normalizedKey });
+    });
+
+    // Handle test recording button click
+    recordButton.addEventListener('click', async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        chrome.tabs.sendMessage(tab.id, { action: 'toggleTestRecording', ticketId: normalizedKey }, (response) => {
+            if (response.recording) {
+                recordButton.textContent = 'Stop Recording';
+                recordButton.classList.add('recording');
+            } else {
+                recordButton.textContent = 'Start Recording';
+                recordButton.classList.remove('recording');
+            }
+        });
     });
 
     // Handle screenshot attachment button click
@@ -1123,6 +1101,37 @@ async function displayTicket(ticketData) {
         } finally {
             attachScreenshotBtn.disabled = false;
             attachScreenshotBtn.textContent = 'Add Screenshot';
+        }
+    });
+
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request.action === 'addTestToComment') {
+            console.log('Comment input selector:', request.ticketId);
+            let commentInput = document.querySelector(`[data-ticket-id="${request.ticketId}"] .comment-input`);
+            if (!commentInput) {
+                sendResponse({ error: 'No comment input found' });
+                return true;
+            }
+
+            // Add test content to comment input
+            commentInput.value = request.content;
+            commentInput.dispatchEvent(new Event('input'));
+            sendResponse({ success: true });
+            return true;
+        } else if (request.action === 'elementSelected') {
+            console.log('Element selected:', request.selector);
+            console.log('Comment input selector:', request.ticketId);
+            let commentInput = document.querySelector(`[data-ticket-id="${request.ticketId}"] .comment-input`);
+            if (!commentInput) {
+                return true;
+            }
+
+            const selector = request.selector;
+            const tagText = `[tag]${selector}[/tag]`;
+            const cursorPos = commentInput.selectionStart;
+            const currentValue = commentInput.value;
+            commentInput.value = currentValue.slice(0, cursorPos) + tagText + currentValue.slice(cursorPos);
+            return true;
         }
     });
 
