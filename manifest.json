@@ -10,7 +10,8 @@
     "storage",
     "sidePanel",
     "identity",
-    "tabCapture"
+    "tabCapture",
+    "contextMenus"
   ],
   "oauth2": {
     "client_id": "${JIRA_CONFIG.CLIENT_ID}",

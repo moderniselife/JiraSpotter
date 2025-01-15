@@ -1,5 +1,11 @@
-// Store found task IDs
+// Store found task IDs and last clicked element
 window.jiraTaskIds = new Set();
+window.lastRightClickedElement = null;
+
+// Store the element that was right-clicked
+document.addEventListener('contextmenu', (e) => {
+    window.lastRightClickedElement = e.target;
+}, true);
 
 // Function to normalize task ID
 function normalizeTaskId(id) {
@@ -8,31 +14,260 @@ function normalizeTaskId(id) {
 
 // Function to extract task IDs from text
 function extractTaskIds(text) {
+    const taskIds = new Set();
+
+    // Look for jira-taskid attributes
     const regex = /jira-taskid="([^"]+)"/gi;
     const matches = text.matchAll(regex);
-
     for (const match of matches) {
         const taskId = normalizeTaskId(match[1]);
         console.log('Found task ID:', taskId);
+        taskIds.add(taskId);
         window.jiraTaskIds.add(taskId);
     }
 
-    // Also look for task IDs in comments (if applicable)
+    // Look for task IDs in comments
     const commentRegex = /\/\*[\s\S]*?jira-taskid[=:]?\s*["']?([^"'\s]+)["']?[\s\S]*?\*\/|\/\/.*jira-taskid[=:]?\s*["']?([^"'\s]+)["']?/gi;
     const commentMatches = text.matchAll(commentRegex);
-
     for (const match of commentMatches) {
         if (match[1]) {
             const taskId = normalizeTaskId(match[1]);
             console.log('Found task ID in comment:', taskId);
+            taskIds.add(taskId);
             window.jiraTaskIds.add(taskId);
         }
         if (match[2]) {
             const taskId = normalizeTaskId(match[2]);
             console.log('Found task ID in comment:', taskId);
+            taskIds.add(taskId);
             window.jiraTaskIds.add(taskId);
         }
     }
+
+    // Look for Jira ticket patterns (e.g., PROJ-123)
+    const jiraPattern = /\b[A-Z]+-\d+\b/g;
+    const jiraMatches = text.matchAll(jiraPattern);
+    for (const match of jiraMatches) {
+        const taskId = normalizeTaskId(match[0]);
+        console.log('Found Jira ticket:', taskId);
+        taskIds.add(taskId);
+    }
+
+    return Array.from(taskIds);
+}
+
+// Function to create and show ticket selection dialog
+function showTicketSelectionDialog(existingTickets, elementDesc) {
+    // Create dialog container with shadow DOM
+    const container = document.createElement('div');
+    container.id = 'jira-ticket-dialog-container';
+    const shadow = container.attachShadow({ mode: 'open' });
+
+    // Add styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .dialog {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+        h2 {
+            margin-top: 0;
+            color: #172B4D;
+        }
+        .element-desc {
+            margin: 10px 0;
+            padding: 10px;
+            background: #F4F5F7;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .section-title {
+            margin: 15px 0 5px;
+            color: #172B4D;
+            font-weight: 500;
+        }
+        .ticket-list {
+            margin: 10px 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .ticket-option {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #DFE1E6;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .ticket-option:hover {
+            background: #F4F5F7;
+        }
+        .ticket-option.selected {
+            border-color: #0052CC;
+            background: #DEEBFF;
+        }
+        .manual-input {
+            margin-top: 15px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #DFE1E6;
+            border-radius: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        input:focus, textarea:focus {
+            border-color: #0052CC;
+            outline: none;
+            box-shadow: 0 0 0 2px #DEEBFF;
+        }
+        .buttons {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .primary {
+            background: #0052CC;
+            color: white;
+        }
+        .primary:hover {
+            background: #0747A6;
+        }
+        .secondary {
+            background: #EBECF0;
+            color: #172B4D;
+        }
+        .secondary:hover {
+            background: #DFE1E6;
+        }
+        .error {
+            color: #DE350B;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+    `;
+
+    // Create dialog content
+    const dialog = document.createElement('div');
+    dialog.className = 'dialog-overlay';
+    dialog.innerHTML = `
+        <div class="dialog">
+            <h2>Link Jira Ticket</h2>
+            <div class="element-desc">${elementDesc}</div>
+            ${existingTickets.length > 0 ? `
+                <div class="section-title">Select existing ticket:</div>
+                <div class="ticket-list">
+                    ${existingTickets.map(ticket => `
+                        <div class="ticket-option" data-ticket="${ticket}">${ticket}</div>
+                    `).join('')}
+                </div>
+            ` : ''}
+            <div class="manual-input">
+                <div class="section-title">Or enter Jira ticket ID:</div>
+                <input type="text" placeholder="e.g., PROJ-123" pattern="[A-Za-z]+-[0-9]+" />
+                <div class="error" style="display: none;">Please enter a valid Jira ticket ID (e.g., PROJ-123)</div>
+            </div>
+            <div class="manual-input">
+                <div class="section-title">Additional Context:</div>
+                <textarea placeholder="Add any additional context about why this element is being linked..."></textarea>
+            </div>
+            <div class="buttons">
+                <button class="secondary" id="cancel">Cancel</button>
+                <button class="primary" id="link">Link Ticket</button>
+            </div>
+        </div>
+    `;
+
+    // Add event listeners
+    shadow.appendChild(style);
+    shadow.appendChild(dialog);
+    document.body.appendChild(container);
+
+    // Handle ticket selection
+    let selectedTicket = '';
+    const input = shadow.querySelector('input');
+    const textarea = shadow.querySelector('textarea');
+    const error = shadow.querySelector('.error');
+
+    shadow.querySelectorAll('.ticket-option').forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove selected class from all options
+            shadow.querySelectorAll('.ticket-option').forEach(opt =>
+                opt.classList.remove('selected'));
+            // Add selected class to clicked option
+            option.classList.add('selected');
+            selectedTicket = option.dataset.ticket;
+            input.value = selectedTicket;
+            error.style.display = 'none';
+        });
+    });
+
+    input.addEventListener('input', () => {
+        selectedTicket = '';
+        shadow.querySelectorAll('.ticket-option').forEach(opt =>
+            opt.classList.remove('selected'));
+        error.style.display = 'none';
+    });
+
+    return new Promise((resolve, reject) => {
+        shadow.getElementById('cancel').addEventListener('click', () => {
+            container.remove();
+            reject('Cancelled');
+        });
+
+        shadow.getElementById('link').addEventListener('click', () => {
+            const ticketId = input.value.trim().toUpperCase();
+            const context = textarea.value.trim();
+            const isValid = /^[A-Z]+-\d+$/.test(ticketId);
+
+            if (isValid) {
+                container.remove();
+                resolve({ ticketId, context });
+            } else {
+                error.style.display = 'block';
+                input.focus();
+            }
+        });
+
+        // Handle Enter key
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                shadow.getElementById('link').click();
+            }
+        });
+    });
 }
 
 // Track scanned resources to avoid duplicates
@@ -362,6 +597,49 @@ document.addEventListener('click', (e) => {
     disableElementSelection();
 });
 
+// Function to generate a unique selector for an element
+function generateSelector(element) {
+    const path = [];
+    let current = element;
+
+    while (current) {
+        let selector = current.tagName.toLowerCase();
+
+        if (current.id) {
+            selector += `#${current.id}`;
+            path.unshift(selector);
+            break; // ID is unique, no need to go further up
+        }
+
+        if (current.className) {
+            const classes = Array.from(current.classList)
+                .filter(cls => cls !== 'jira-spotter-hover')
+                .join('.');
+            if (classes) {
+                selector += `.${classes}`;
+            }
+        }
+
+        // Add nth-child if needed
+        const siblings = current.parentNode ? Array.from(current.parentNode.children) : [];
+        if (siblings.length > 1) {
+            const index = siblings.indexOf(current) + 1;
+            selector += `:nth-child(${index})`;
+        }
+
+        path.unshift(selector);
+        current = current.parentNode;
+
+        // Stop at body to keep selector manageable
+        if (current === document.body) {
+            path.unshift('body');
+            break;
+        }
+    }
+
+    return path.join(' > ');
+}
+
 // New function to get all elements with unique selectors
 function getAllPageElements(searchText = '') {
     const elements = document.querySelectorAll('*');
@@ -401,7 +679,43 @@ function getAllPageElements(searchText = '') {
 
 // Listen for messages from background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'getTaskIds') {
+    if (request.action === 'handleElementSelection') {
+        if (!window.lastRightClickedElement || window.lastRightClickedElement.closest('#jira-ticket-dialog-container')) {
+            sendResponse({ error: 'Element not found or invalid' });
+            return;
+        }
+
+        const element = window.lastRightClickedElement;
+
+        // Get existing task IDs from the page
+        const existingTickets = Array.from(window.jiraTaskIds);
+
+        // Get element details for the dialog
+        const tagName = element.tagName.toLowerCase();
+        const elementText = ((element.textContent || element.value || '') + '').trim().substring(0, 50);
+        const selector = generateSelector(element);
+        const elementDesc = `Tag: ${tagName}<br>${elementText ? `Value: "${elementText}${(element.textContent || element.value).length > 50 ? '...' : ''}"` : ''}<br>Selector: ${selector}`;
+
+        showTicketSelectionDialog(existingTickets, elementDesc)
+            .then(({ ticketId, context }) => {
+                // Add comment to the Jira ticket with element details
+                const selector = generateSelector(element);
+                const comment = `Element linked: \n{quote}${elementDesc}{quote}\n\n` +
+                    (context ? `Context: \n{quote}${context}{quote}\n\n` : '') +
+                    `Selector: \`${selector}\`\n\n` +
+                    `Source: ${window.location.href}`;
+                
+                chrome.runtime.sendMessage({
+                    action: 'addComment',
+                    ticketId: ticketId,
+                    comment: comment
+                });
+            })
+            .catch(() => { }); // Handle dialog cancellation
+
+        sendResponse({ success: true });
+        return true; // Required for async response
+    } else if (request.action === 'getTaskIds') {
         sendResponse({ taskIds: Array.from(window.jiraTaskIds) });
     } else if (request.action === 'takeScreenshot') {
         // Use html2canvas for screenshot

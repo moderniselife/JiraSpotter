@@ -7,6 +7,25 @@ let jiraConfig = {
     refreshToken: null
 };
 
+// Create context menu item
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+        id: 'linkJiraTicket',
+        title: 'Link Jira Ticket',
+        contexts: ['all']
+    });
+});
+
+// Handle context menu clicks
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === 'linkJiraTicket') {
+        // Get the clicked element directly in the content script
+        chrome.tabs.sendMessage(tab.id, {
+            action: 'handleElementSelection'
+        });
+    }
+});
+
 // Import Jira OAuth configuration
 importScripts('config.js');
 
