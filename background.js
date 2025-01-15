@@ -173,6 +173,46 @@ async function getAttachmentUrl(attachmentId) {
 }
 
 // Jira API Functions
+async function searchJiraUsers(searchText, retryCount = 0) {
+    try {
+        console.log('Searching Jira users with query:', searchText);
+        const url = `${jiraConfig.baseUrl}/rest/api/2/user/search?query=${encodeURIComponent(searchText)}&maxResults=10&includeActive=true&includeInactive=false`;
+        console.log('Request URL:', url);
+        
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': getAuthHeader(),
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Search users error:', errorText);
+            if (response.status === 401 && retryCount < 1) {
+                if (jiraConfig.authType === 'oauth') {
+                    await refreshAccessToken();
+                    return searchJiraUsers(searchText, retryCount + 1);
+                }
+            }
+            throw new Error(`Failed to search users: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        if (error.message.includes('401') && jiraConfig.authType === 'oauth' && retryCount < 1) {
+            try {
+                await refreshAccessToken();
+                return searchJiraUsers(searchText, retryCount + 1);
+            } catch (refreshError) {
+                throw new Error('Authentication failed. Please login again.');
+            }
+        }
+        throw error;
+    }
+}
+
 async function fetchJiraTicket(ticketId, retryCount = 0) {
     try {
         const response = await fetch(`${jiraConfig.baseUrl}/rest/api/2/issue/${ticketId}`, {
@@ -447,6 +487,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             await refreshAccessToken();
                             const data = await uploadJiraAttachment(request.ticketId, request.filename, request.dataUrl);
                             sendResponse(data);
+                        } catch (refreshError) {
+                            sendResponse({ error: 'Authentication failed. Please login again.' });
+                        }
+                    } else {
+                        sendResponse({ error: error.message });
+                    }
+                });
+            return true;
+
+        case 'searchJiraUsers':
+            searchJiraUsers(request.searchText)
+                .then(users => sendResponse({ users }))
+                .catch(async error => {
+                    if (error.message.includes('401') && jiraConfig.authType === 'oauth') {
+                        try {
+                            await refreshAccessToken();
+                            const users = await searchJiraUsers(request.searchText);
+                            sendResponse({ users });
                         } catch (refreshError) {
                             sendResponse({ error: 'Authentication failed. Please login again.' });
                         }

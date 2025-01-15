@@ -923,9 +923,83 @@ async function displayTicket(ticketData) {
     const selectElementBtn = commentForm.querySelector('.select-element-btn');
     const attachScreenshotBtn = commentForm.querySelector('.attach-screenshot-btn');
 
+    // Function to fetch Jira users
+    async function fetchJiraUsers(searchText) {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage(
+                {
+                    action: 'searchJiraUsers',
+                    searchText
+                },
+                response => {
+                    if (response.error) {
+                        reject(new Error(response.error));
+                    } else {
+                        resolve(response.users || []);
+                    }
+                }
+            );
+        });
+    }
+
     commentInput.addEventListener('input', async (e) => {
         const cursorPos = e.target.selectionStart;
         const value = e.target.value;
+        
+        // Check for @ mentions
+        const atIndex = value.lastIndexOf('@', cursorPos);
+        if (atIndex !== -1 && (atIndex === 0 || value[atIndex - 1] === ' ')) {
+            const searchText = value.slice(atIndex + 1, cursorPos).trim();
+            try {
+                const users = await fetchJiraUsers(searchText);
+                
+                // Create or update dropdown for user mentions
+                let dropdown = commentInput.parentElement.querySelector('.user-mention-dropdown');
+                if (!dropdown) {
+                    dropdown = document.createElement('div');
+                    dropdown.className = 'user-mention-dropdown';
+                    commentInput.parentElement.appendChild(dropdown);
+                }
+                dropdown.innerHTML = ''; // Clear existing options
+                
+                if (users && users.length > 0) {
+                    users.forEach(user => {
+                        const option = document.createElement('div');
+                        option.className = 'user-option';
+                        option.innerHTML = `
+                            <span class="user-name">${user.displayName}</span>
+                            <span class="user-email">${user.emailAddress || ''}</span>
+                        `;
+                        option.addEventListener('click', () => {
+                            // Replace @ and search text with the selected user
+                            const beforeMention = value.slice(0, atIndex);
+                            const afterMention = value.slice(cursorPos);
+                            commentInput.value = beforeMention + `[~${user.accountId}]` + afterMention;
+                            dropdown.remove();
+                        });
+                        dropdown.appendChild(option);
+                    });
+                    dropdown.style.display = 'block';
+                } else if (users && users.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'user-option no-results';
+                    noResults.textContent = 'No users found';
+                    dropdown.appendChild(noResults);
+                    dropdown.style.display = 'block';
+                } else {
+                    dropdown.remove();
+                }
+            } catch (error) {
+                console.error('Error fetching users:', error);
+                showError('Failed to search users. Please try again.');
+            }
+        } else {
+            // Remove dropdown if no @ is being typed
+            const dropdown = commentInput.parentElement.querySelector('.user-mention-dropdown');
+            if (dropdown) {
+                dropdown.remove();
+            }
+        }
         
         // Check if user typed "[tag]" and additional text
         const tagIndex = value.lastIndexOf('[tag]');
