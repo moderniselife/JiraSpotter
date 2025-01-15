@@ -1,3 +1,46 @@
+// Global message listener for handling test records and element selection
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'addTestToComment') {
+        // Find the active ticket
+        const activeTicket = document.querySelector('.ticket');
+        if (!activeTicket) {
+            sendResponse({ error: 'No active ticket found' });
+            return true;
+        }
+
+        // Find the comment input in the active ticket
+        const commentInput = activeTicket.querySelector('.comment-input');
+        if (!commentInput) {
+            sendResponse({ error: 'No comment input found' });
+            return true;
+        }
+
+        // Add test content to comment input
+        commentInput.value = request.content;
+        commentInput.dispatchEvent(new Event('input'));
+        sendResponse({ success: true });
+        return true;
+    } else if (request.action === 'elementSelected') {
+        // Find the active ticket's comment input
+        const activeTicket = document.querySelector('.ticket');
+        if (!activeTicket) {
+            return true;
+        }
+
+        const commentInput = activeTicket.querySelector('.comment-input');
+        if (!commentInput) {
+            return true;
+        }
+
+        const selector = request.selector;
+        const tagText = `[tag]${selector}[/tag]`;
+        const cursorPos = commentInput.selectionStart;
+        const currentValue = commentInput.value;
+        commentInput.value = currentValue.slice(0, cursorPos) + tagText + currentValue.slice(cursorPos);
+        return true;
+    }
+});
+
 // DOM Elements
 const configPanel = document.getElementById('config-panel');
 const configForm = document.getElementById('config-form');
@@ -1082,28 +1125,6 @@ async function displayTicket(ticketData) {
             attachScreenshotBtn.textContent = 'Add Screenshot';
         }
     });
-
-    // Listen for element selection
-    const elementSelectionListener = (request, sender, sendResponse) => {
-        if (request.action === 'elementSelected') {
-            const selector = request.selector;
-            const tagText = `[tag]${selector}[/tag]`;
-
-            // Insert tag at cursor position or append to end
-            const cursorPos = commentInput.selectionStart;
-            const currentValue = commentInput.value;
-            commentInput.value = currentValue.slice(0, cursorPos) +
-                tagText +
-                currentValue.slice(cursorPos);
-        }
-    };
-    chrome.runtime.onMessage.addListener(elementSelectionListener);
-
-    // Remove listener when ticket is removed
-    const cleanup = () => {
-        chrome.runtime.onMessage.removeListener(elementSelectionListener);
-    };
-    ticketContainer.addEventListener('remove', cleanup);
 
     addCommentBtn.addEventListener('click', async () => {
         const comment = commentInput.value.trim().replace('[Screenshot will be attached when comment is added]', '').trim();

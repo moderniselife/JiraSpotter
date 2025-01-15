@@ -86,6 +86,9 @@ async function scanDOM() {
     }
 }
 
+// Initialize test recorder
+const testRecorder = new TestRecorder();
+
 // Create shadow root container for isolated styles
 let shadowRoot;
 function createShadowContainer() {
@@ -96,10 +99,9 @@ function createShadowContainer() {
     // Add styles to shadow DOM
     const style = document.createElement('style');
     style.textContent = `
-        #jira-spotter-button {
+        #jira-spotter-button,
+        #record-test-button {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
             z-index: 10000;
             padding: 10px 20px;
             background-color: #0052CC;
@@ -110,29 +112,119 @@ function createShadowContainer() {
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        #jira-spotter-button:hover {
+        #jira-spotter-button {
+            bottom: 20px;
+            right: 20px;
+        }
+        #record-test-button {
+            bottom: 20px;
+            right: 140px;
+        }
+        #jira-spotter-button:hover,
+        #record-test-button:hover {
             background-color: #0747a6;
+        }
+        #record-test-button.recording {
+            background-color: #DE350B;
+        }
+        #record-test-button.recording:hover {
+            background-color: #BF2600;
         }
     `;
     shadowRoot.appendChild(style);
     document.body.appendChild(container);
 }
 
-// Create floating button
+// Create floating buttons
 function createFloatingButton() {
     if (!shadowRoot) {
         createShadowContainer();
     }
 
+    // Create Jira Tasks button
     const button = document.createElement('button');
     button.id = 'jira-spotter-button';
     button.textContent = 'Jira Tasks';
-
     button.addEventListener('click', () => {
         chrome.runtime.sendMessage({ action: 'openSidePanel' });
     });
-
     shadowRoot.appendChild(button);
+
+    // Create Record Test button
+    const recordButton = document.createElement('button');
+    recordButton.id = 'record-test-button';
+    recordButton.textContent = 'Record Test';
+    recordButton.addEventListener('click', toggleTestRecording);
+    shadowRoot.appendChild(recordButton);
+}
+
+// Handle test recording
+function toggleTestRecording() {
+    const recordButton = shadowRoot.getElementById('record-test-button');
+    
+    if (!testRecorder.recording) {
+        // Start recording
+        testRecorder.start();
+        recordButton.textContent = 'Stop Recording';
+        recordButton.classList.add('recording');
+        
+        // Record initial page URL
+        testRecorder.recordNavigation(window.location.href);
+        
+        // Add click event listener for recording
+        document.addEventListener('click', recordInteraction, true);
+        document.addEventListener('input', recordInput, true);
+    } else {
+        // Stop recording
+        const test = testRecorder.stop();
+        recordButton.textContent = 'Record Test';
+        recordButton.classList.remove('recording');
+        
+        // Remove event listeners
+        document.removeEventListener('click', recordInteraction, true);
+        document.removeEventListener('input', recordInput, true);
+        
+        // Add test to comment box in sidepanel
+        chrome.runtime.sendMessage({
+            action: 'addTestToComment',
+            content: `{code:javascript}\n${test}\n{code}\n\nPlaywright test recorded at ${new Date().toLocaleString()}`
+        });
+    }
+}
+
+// Record user interactions
+function recordInteraction(event) {
+    if (!testRecorder.recording) return;
+    if (event.target.closest('#jira-spotter-container')) return;
+
+    const element = event.target;
+    const tagName = element.tagName.toLowerCase();
+    const id = element.id;
+    const classes = Array.from(element.classList).join('.');
+    
+    let selector = tagName;
+    if (id) selector += `#${id}`;
+    if (classes) selector += `.${classes}`;
+    
+    const text = element.textContent.trim();
+    testRecorder.recordClick(selector, text.substring(0, 30));
+}
+
+// Record input changes
+function recordInput(event) {
+    if (!testRecorder.recording) return;
+    if (event.target.closest('#jira-spotter-container')) return;
+
+    const element = event.target;
+    const tagName = element.tagName.toLowerCase();
+    const id = element.id;
+    const classes = Array.from(element.classList).join('.');
+    
+    let selector = tagName;
+    if (id) selector += `#${id}`;
+    if (classes) selector += `.${classes}`;
+    
+    testRecorder.recordInput(selector, event.target.value);
 }
 
 // Function to manage button visibility

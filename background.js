@@ -1,4 +1,4 @@
-// Store Jira API configuration
+/*  */// Store Jira API configuration
 let jiraConfig = {
     baseUrl: '',
     token: '',
@@ -178,7 +178,7 @@ async function searchJiraUsers(searchText, retryCount = 0) {
         console.log('Searching Jira users with query:', searchText);
         const url = `${jiraConfig.baseUrl}/rest/api/2/user/search?query=${encodeURIComponent(searchText)}&maxResults=10&includeActive=true&includeInactive=false`;
         console.log('Request URL:', url);
-        
+
         const response = await fetch(url, {
             headers: {
                 'Authorization': getAuthHeader(),
@@ -309,7 +309,7 @@ async function updateJiraTicketStatus(ticketId, status) {
 async function addJiraComment(ticketId, comment, screenshotData = null, filename = null) {
     try {
         let finalComment = comment;
-        
+
         // If there's a screenshot, upload it first
         if (screenshotData && filename) {
             const attachmentResult = await uploadJiraAttachment(ticketId, filename, screenshotData);
@@ -512,6 +512,48 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         sendResponse({ error: error.message });
                     }
                 });
+            return true;
+
+        case 'saveTest':
+            // Create a Blob with the test content
+            const testBlob = new Blob([request.test], { type: 'text/javascript' });
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `test-${timestamp}.spec.js`;
+
+            // For each Jira task ID, upload the test file and add a comment
+            Promise.all(request.taskIds.map(async (taskId) => {
+                try {
+                    // Upload the test file
+                    const formData = new FormData();
+                    formData.append('file', testBlob, filename);
+
+                    const uploadResponse = await fetch(
+                        `${jiraConfig.baseUrl}/rest/api/2/issue/${taskId}/attachments`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': getAuthHeader(),
+                                'X-Atlassian-Token': 'no-check'
+                            },
+                            body: formData
+                        }
+                    );
+
+                    if (!uploadResponse.ok) {
+                        throw new Error(`Failed to upload test file: ${uploadResponse.statusText}`);
+                    }
+
+                    // Add a comment with the test content and file reference
+                    const comment = `Automated test recorded:\n\n{code:javascript}\n${request.test}\n{code}\n\nAttached file: [${filename}|${filename}]`;
+                    await addJiraComment(taskId, comment);
+
+                    return { taskId, success: true };
+                } catch (error) {
+                    return { taskId, success: false, error: error.message };
+                }
+            }))
+                .then(results => sendResponse({ results }))
+                .catch(error => sendResponse({ error: error.message }));
             return true;
     }
 });

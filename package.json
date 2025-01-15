@@ -6,6 +6,7 @@
     "build": "node build.js"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "dotenv": "^16.0.3",
     "sass": "^1.83.1"
   }
