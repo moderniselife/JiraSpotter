@@ -2,13 +2,14 @@
 
 **Effortlessly link and track Jira tickets directly from your platform.**
 
-Jira Spotter is a Chrome extension designed to streamline your development workflow by connecting your platform to Jira. With just a simple attribute or identifier, you can view associated Jira tickets directly in a convenient side panel.
+Jira Spotter is a Chrome extension designed to streamline your development workflow by connecting your platform to Jira. With just a simple attribute or task ID, you can view associated Jira tickets directly in a convenient side panel.
 
 ---
 
 ## 🚀 Features
 
-- **Flexible Integration**: Add the `jira-taskid` attribute anywhere in your HTML, CSS, or JavaScript files, even in comments.
+- **Flexible Integration**: Use either the `jira-taskid` attribute or simply include the Jira task ID anywhere in your HTML, CSS, or JavaScript files, even in comments.
+- **Smart Task Detection**: Automatically detects Jira task IDs in your code without requiring explicit attributes.
 - **Real-Time Insights**: Display linked Jira tickets in a responsive side panel while navigating your platform.
 - **Secure Authentication**: Supports both OAuth and access key/base URL authentication methods.
 - **Local Processing**: All operations are performed locally within your browser—no data is transmitted externally.
@@ -27,13 +28,13 @@ Jira Spotter is a Chrome extension designed to streamline your development workf
 1. Download and install the Jira Spotter Chrome extension from the [Chrome Web Store](#) (soon - in review - for now download and load as unpacked extension).
 2. Click the extension icon in your browser to open the settings panel.
 3. Configure your Jira authentication method (OAuth or access key with base URL).
-4. Add `jira-taskid="JIRA ID HERE"` anywhere in your project's HTML, CSS, or JavaScript files.
+4. Add either `jira-taskid="JIRA ID HERE"` or simply include the Jira ID (e.g., "JIRA-1234") anywhere in your project's HTML, CSS, or JavaScript files.
 
 ---
 
 ## ⚙️ Usage
 
-1. Open your platform where you've added `jira-taskid` attributes or comments.
+1. Open your platform where you've added Jira task references.
 2. Click on the Jira Spotter icon in your browser to open the side panel.
 3. View the Jira tickets associated with the page directly in the panel.
 
@@ -41,41 +42,57 @@ Jira Spotter is a Chrome extension designed to streamline your development workf
 
 #### HTML:
 
-You can place the `jira-taskid` attribute anywhere in your HTML. For example:
+You can reference Jira tickets in two ways:
 
 ```html
-<!-- Link a Jira ticket to this section -->
+<!-- Using the jira-taskid attribute -->
 <div jira-taskid="JIRA-1234">Feature Section</div>
 
-<!-- Or even in a comment -->
+<!-- Or simply include the task ID -->
+<div>Feature Section for JIRA-1234</div>
+
+<!-- In comments - both styles work -->
 <!-- jira-taskid="JIRA-5678" -->
+<!-- Working on JIRA-5678 -->
 ```
 
 #### JavaScript:
 
-The `jira-taskid` can also be used within comments in your JavaScript code:
+Reference Jira tickets in your JavaScript code:
 
 ```javascript
+// Using the attribute in comments
 // jira-taskid="JIRA-91011"
-// This function implements the feature described in JIRA-91011
 function exampleFeature() {
   console.log("Feature implemented");
+}
+
+// Or simply reference the ticket
+// This implements JIRA-91011
+function anotherFeature() {
+  console.log("Another feature implemented");
 }
 ```
 
 #### CSS:
 
-Use `jira-taskid` within CSS comments to link styles to Jira tickets:
+Reference Jira tickets within CSS comments:
 
 ```css
+/* Using the attribute */
 /* jira-taskid="JIRA-121314" */
 .my-class {
   color: blue;
+}
+
+/* Or simply reference the ticket */
+/* Styling for JIRA-121314 */
+.another-class {
   font-size: 16px;
 }
 ```
 
-Wherever you place the `jira-taskid`, the associated Jira task will appear in the side panel when the extension is active.
+The extension will detect and link Jira tasks regardless of how they're referenced, making them visible in the side panel when active.
 
 ### Smart Selection
 
@@ -250,7 +267,7 @@ Jira Spotter uses Playwright for automated testing:
 
 ## 🐛 Troubleshooting
 
-- **Jira tickets not appearing**: Ensure `jira-taskid` attributes or comments are correctly added and match existing Jira ticket IDs.
+- **Jira tickets not appearing**: Ensure Jira task IDs are correctly formatted and match existing tickets.
 - **Authentication issues**: Double-check your credentials and try re-authenticating.
 - **Screenshot capture fails**: Ensure the page has fully loaded before attempting to capture.
 - **Test recording issues**: Check that the page is accessible and interactive before recording.
