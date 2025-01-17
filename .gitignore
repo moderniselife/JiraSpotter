@@ -10,9 +10,12 @@ dist/
 
 # Environment variables
 .env
+.env.development
+.env.production
 
 # OS files
 .DS_Store
 Thumbs.db
 .vscode
 styles.css
+package-lock.json

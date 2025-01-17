@@ -1,6 +1,12 @@
 const fs = require('fs');
 const sass = require('sass');
-require('dotenv').config();
+const path = require('path');
+
+// Determine environment
+const ENV = process.env.NODE_ENV || 'development';
+require('dotenv').config({
+    path: path.resolve(process.cwd(), `.env.${ENV}`)
+});
 
 // Compile SCSS to CSS
 try {

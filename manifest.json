@@ -2,8 +2,7 @@
   "manifest_version": 3,
   "name": "Jira Spotter",
   "version": "1.0.1",
-  "description": "Finds and manages Jira tickets referenced in code via jira-taskID",
-  "summary": "Finds and manages Jira tickets referenced in code via jira-taskID",
+  "description": "Seamlessly connect your codebase with Jira tickets. View, manage, and track issues directly from Chrome's side panel.",
   "permissions": ["storage", "sidePanel", "identity", "contextMenus"],
   "oauth2": {
     "client_id": "${JIRA_CONFIG.CLIENT_ID}",
